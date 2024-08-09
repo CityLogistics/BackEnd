@@ -1,10 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateOrderDto {
-  name: string;
-
-  age: number;
-
+  id: number;
   @ApiProperty()
-  breed: string;
+  user: string;
 }

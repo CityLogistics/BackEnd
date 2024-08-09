@@ -8,7 +8,6 @@ async function bootstrap() {
     .setTitle('City logistics')
     .setDescription('City logistics API documentaion')
     .setVersion('1.0')
-    .addTag('city-logistics')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

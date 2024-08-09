@@ -1,0 +1,7 @@
+{
+  "files.exclude": {
+    "**/*.spec.ts": true,
+    "**/*.g.dart": true
+  },
+  
+}
