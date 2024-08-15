@@ -25,6 +25,7 @@ export class CreateDriverDto {
   @IsEmail()
   email: string;
 
+  @IsNotEmpty()
   @IsPhoneNumber()
   phoneNumber: number;
 
