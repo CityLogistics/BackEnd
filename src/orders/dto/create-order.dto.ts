@@ -1,9 +1,11 @@
 import {
   IsDateString,
   IsEmail,
+  IsEnum,
   IsNotEmpty,
   IsPhoneNumber,
 } from 'class-validator';
+import { OrderType } from '../entities/order.entity';
 
 export class CreateOrderDto {
   @IsNotEmpty()
@@ -39,4 +41,7 @@ export class CreateOrderDto {
 
   @IsNotEmpty()
   discription: string;
+
+  @IsEnum(OrderType)
+  type: OrderType;
 }

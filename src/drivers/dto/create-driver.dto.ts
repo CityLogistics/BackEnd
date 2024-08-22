@@ -8,17 +8,19 @@ import {
   IsString,
   ValidateIf,
 } from 'class-validator';
-
-enum VehicleType {
-  SALON = 'SALON',
-  SEDAN = 'SEDAN',
-}
+import {
+  AvailabiltyDay,
+  AvailabiltyTime,
+  VehicleType,
+} from '../entities/driver.entity';
 
 export class CreateDriverDto {
   @IsNotEmpty()
+  @IsString()
   firstName: string;
 
   @IsNotEmpty()
+  @IsString()
   lastName: string;
 
   @IsNotEmpty()
@@ -28,6 +30,10 @@ export class CreateDriverDto {
   @IsNotEmpty()
   @IsPhoneNumber()
   phoneNumber: number;
+
+  @IsNotEmpty()
+  @IsString()
+  image: string;
 
   @IsNotEmpty()
   @IsBoolean()
@@ -47,11 +53,11 @@ export class CreateDriverDto {
 
   @IsNotEmpty()
   @IsArray()
-  availabiltyDays: string[];
+  availabiltyDays: AvailabiltyDay[];
 
-  @IsString()
+  @IsArray()
   @IsNotEmpty()
-  availabiltyTime: string;
+  availabiltyTime: AvailabiltyTime[];
 
   @IsString()
   @IsNotEmpty()

@@ -7,12 +7,14 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { DriversService } from './drivers.service';
 import { CreateDriverDto } from './dto/create-driver.dto';
 import { UpdateDriverDto } from './dto/update-driver.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { GetDriverDto } from './dto/get-driver.dto';
 
 @ApiTags('drivers')
 @ApiBearerAuth()
@@ -27,8 +29,11 @@ export class DriversController {
   }
 
   @Get()
-  findAll() {
-    return this.driversService.findAll();
+  findAll(
+    @Query()
+    getDriverDto: GetDriverDto,
+  ) {
+    return this.driversService.findAll(getDriverDto);
   }
 
   @Get(':id')

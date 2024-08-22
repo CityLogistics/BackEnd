@@ -1,7 +1,7 @@
 import { Connection } from 'mongoose';
-import { UserSchema } from './schemas/user.schema';
 import dbConstants from 'src/db/db.constants';
 import usersConstants from './users.contants';
+import { UserSchema } from './entities/user.entity';
 
 export const usersProvider = [
   {

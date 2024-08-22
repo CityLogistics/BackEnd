@@ -7,11 +7,14 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
+  ParseArrayPipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @ApiTags('orders')
@@ -26,9 +29,93 @@ export class OrdersController {
     return await this.ordersService.create(createOrderDto);
   }
 
+  @ApiQuery({
+    name: 'dates',
+    type: 'array',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'orderTypes',
+    type: 'array',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'orderStatus',
+    type: 'array',
+    required: false,
+  })
   @Get()
-  async findAll() {
-    return await this.ordersService.findAll();
+  async findAll(
+    @Query(
+      'dates',
+      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
+    )
+    dates: string[],
+    @Query(
+      'orderTypes',
+      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
+    )
+    orderTypes: string[],
+    @Query(
+      'orderStatus',
+      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
+    )
+    orderStatus: string[],
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ) {
+    return await this.ordersService.findAll(
+      dates,
+      orderTypes,
+      orderStatus,
+      page,
+      limit,
+    );
+  }
+
+  @ApiQuery({
+    name: 'dates',
+    type: 'array',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'orderTypes',
+    type: 'array',
+    required: false,
+  })
+  @Get('new')
+  async findNew(
+    @Query(
+      'dates',
+      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
+    )
+    dates: string[],
+    @Query(
+      'orderTypes',
+      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
+    )
+    orderTypes: string[],
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ) {
+    return await this.ordersService.findNew(dates, orderTypes, page, limit);
+  }
+
+  @Get('/find-by-date')
+  async findByDateRange(
+    @Query('startDate')
+    startDate: Date,
+    @Query('endDate')
+    endDate: Date,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ) {
+    return await this.ordersService.findByDateRange(
+      startDate,
+      endDate,
+      page,
+      limit,
+    );
   }
 
   @Get(':id')

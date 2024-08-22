@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   Param,
   ParseEnumPipe,
   Patch,
@@ -13,6 +14,7 @@ import { Driver, DriverStatus } from 'src/drivers/entities/driver.entity';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ObjectIdPipe } from 'src/common/pipes/mongoose_object_id.pipe';
+import { Stat } from './entities/stat.entity';
 
 @ApiTags('admin')
 @ApiBearerAuth()
@@ -44,5 +46,10 @@ export class AdminController {
     status: DriverStatus,
   ): Promise<Driver> {
     return await this.adminService.updtateDriverStatus(driverId, status);
+  }
+
+  @Get('/stats')
+  async getStats(): Promise<Stat> {
+    return await this.adminService.getStats();
   }
 }

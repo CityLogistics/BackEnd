@@ -15,7 +15,16 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('doc', app, document);
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+
+      transformOptions: {
+        enableImplicitConversion: true, // <- This line here
+      },
+    }),
+  );
+  app.enableCors();
   await app.listen(3000);
 }
 bootstrap();
