@@ -4,6 +4,7 @@ import usersConstants from './users.contants';
 import { Model } from 'mongoose';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -12,8 +13,23 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const createdUser = new this.userModel(createUserDto);
-    return createdUser.save();
+    try {
+      const { password, ...others } = createUserDto;
+      const hashedPassword = bcrypt.hashSync(password, 10);
+      const createdUser = new this.userModel({
+        ...others,
+        password: hashedPassword,
+      });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password: savedPassword, ...createdUserData } = (
+        await createdUser.save()
+      ).toObject();
+      return { ...createdUserData, password: '' };
+    } catch (error) {
+      throw new BadRequestException(
+        error.message ?? 'An error occured, please contact support',
+      );
+    }
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
@@ -33,6 +49,6 @@ export class UsersService {
   }
 
   async findOne(email: string): Promise<User | undefined> {
-    return (await this.userModel.findOne({ email }).exec()).toObject();
+    return (await this.userModel.findOne({ email }).exec())?.toObject();
   }
 }

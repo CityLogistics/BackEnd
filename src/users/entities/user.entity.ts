@@ -6,7 +6,6 @@ export class User {
   @Prop()
   firstName: string;
 
-  @Prop()
   _id: mongoose.Schema.Types.ObjectId;
 
   @Prop()
@@ -15,7 +14,7 @@ export class User {
   @Prop()
   password: string;
 
-  @Prop()
+  @Prop({ unique: true })
   email: string;
 
   @Prop()
