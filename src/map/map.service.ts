@@ -24,10 +24,20 @@ export class MapService extends Client {
     const googleRes = await this.geocode({
       params: {
         address: `${address.street}, ${address.number}, ${address.city}, ${address.state}, ${address.postalCode}`,
+        bounds: {
+          southwest: {
+            lat: 48.99,
+            lng: -109.99,
+          },
+          northeast: {
+            lat: 60.0,
+            lng: -101.36,
+          },
+        },
         key: this.accessKey,
-        region: 'ng',
-        place_id:
-          'EjBJZG93dSBBa2VyYSBTdHJlZXQsIElmYWtvLUlqYWl5ZSwgTGFnb3MsIE5pZ2VyaWEiLiosChQKEgn_GBPhDpc7EBGE9fimuRVK1hIUChIJZTh79OOWOxARKbK6gyZtI5U',
+        // region: 'ng',
+        // place_id:
+        //   'EjBJZG93dSBBa2VyYSBTdHJlZXQsIElmYWtvLUlqYWl5ZSwgTGFnb3MsIE5pZ2VyaWEiLiosChQKEgn_GBPhDpc7EBGE9fimuRVK1hIUChIJZTh79OOWOxARKbK6gyZtI5U',
       },
     });
 
@@ -40,7 +50,11 @@ export class MapService extends Client {
         key: this.accessKey,
       },
     });
-    const googleRes3 = await this.placeQueryAutocomplete({
+    // const googleRes3 = await this.placeQueryAutocomplete({
+    //   params: { input: 'idowu akera ,ijaiye', key: this.accessKey },
+    // });
+
+    const googleRes3 = await this.placeAutocomplete({
       params: { input: 'idowu akera ,ijaiye', key: this.accessKey },
     });
 
