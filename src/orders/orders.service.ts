@@ -5,16 +5,39 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Order } from './entities/order.entity';
 import { Model } from 'mongoose';
 import * as moment from 'moment';
+import { pricePerKm, regionalPrices } from 'src/common/prices';
+import { MapService } from 'src/map/map.service';
 
 @Injectable()
 export class OrdersService {
-  constructor(@InjectModel(Order.name) private orderModel: Model<Order>) {}
+  constructor(
+    @InjectModel(Order.name) private orderModel: Model<Order>,
+    private mapService: MapService,
+  ) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const pickupDate = moment(createOrderDto.pickupDate)
       .startOf('day')
       .toString();
-    const createdOrder = new this.orderModel({ ...createOrderDto, pickupDate });
+    const { pickupAddress, dropOffAddress } = createOrderDto;
+    const basePrice = Math.max(
+      regionalPrices[pickupAddress.province],
+      regionalPrices[dropOffAddress.province],
+    );
+    const distance = await this.mapService.getDistance(
+      { lat: 50.454722, lng: -104.606667 },
+      { lat: 51.454722, lng: -104.606667 },
+    );
+    const totalPrice = basePrice + (distance / 1000) * pricePerKm;
+
+    console.info({ basePrice, distance });
+    const createdOrder = new this.orderModel({
+      ...createOrderDto,
+      pickupDate,
+      distance,
+      basePrice,
+      totalPrice,
+    });
     return await createdOrder.save();
   }
 

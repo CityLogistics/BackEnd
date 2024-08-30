@@ -29,7 +29,7 @@ export class CreateDriverDto {
 
   @IsNotEmpty()
   @IsPhoneNumber()
-  phoneNumber: number;
+  phoneNumber: string;
 
   @IsNotEmpty()
   @IsString()

@@ -1,5 +1,6 @@
 import {
   Client,
+  LatLng,
   TravelMode,
   UnitSystem,
 } from '@googlemaps/google-maps-services-js';
@@ -60,5 +61,20 @@ export class MapService extends Client {
 
     const data = googleRes.data.results[0].geometry;
     return { data, d: googleRes2.data, m: googleRes3.data };
+  }
+
+  async getDistance(start: LatLng, destination: LatLng): Promise<number> {
+    const distanceRes = await this.distancematrix({
+      params: {
+        origins: [start],
+        destinations: [destination],
+        mode: TravelMode.driving,
+        units: UnitSystem.metric,
+        key: this.accessKey,
+      },
+    });
+
+    const data = distanceRes.data.rows[0].elements[0].distance.value;
+    return data;
   }
 }

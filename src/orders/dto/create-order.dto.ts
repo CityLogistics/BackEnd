@@ -2,10 +2,12 @@ import {
   IsDateString,
   IsEmail,
   IsEnum,
+  IsInstance,
   IsNotEmpty,
   IsPhoneNumber,
+  ValidateNested,
 } from 'class-validator';
-import { OrderType } from '../entities/order.entity';
+import { Address, OrderType } from '../entities/order.entity';
 
 export class CreateOrderDto {
   @IsNotEmpty()
@@ -16,11 +18,12 @@ export class CreateOrderDto {
   email: string;
 
   @IsNotEmpty()
-  pickupAddress: string;
+  @ValidateNested()
+  pickupAddress: Address;
 
   @IsNotEmpty()
   @IsPhoneNumber()
-  pickupPhoneNumber: number;
+  pickupPhoneNumber: string;
 
   @IsNotEmpty()
   @IsDateString()
@@ -33,11 +36,13 @@ export class CreateOrderDto {
   recipientName: string;
 
   @IsNotEmpty()
-  dropOffAddress: string;
+  @IsInstance(Address)
+  @ValidateNested()
+  dropOffAddress: Address;
 
   @IsNotEmpty()
   @IsPhoneNumber()
-  dropOffPhoneNumber: number;
+  dropOffPhoneNumber: string;
 
   @IsNotEmpty()
   discription: string;

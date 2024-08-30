@@ -7,12 +7,9 @@ export class MapController {
 
   @Get()
   async address() {
-    return await this.mapService.getCoordinates({
-      street: 'bello akera',
-      number: '5',
-      city: 'lagos',
-      state: 'lagos',
-      postalCode: '100005',
-    });
+    return await this.mapService.getDistance(
+      { lat: 50.454722, lng: -104.606667 },
+      { lat: 51.454722, lng: -104.606667 },
+    );
   }
 }

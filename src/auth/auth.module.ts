@@ -10,7 +10,6 @@ import { jwtConstants } from './constants';
 import { JwtStrategy } from './jwt.strategy';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/users/entities/user.entity';
-// import { usersProvider } from 'src/users/users.providers';
 
 @Module({
   imports: [
