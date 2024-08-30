@@ -8,13 +8,15 @@ import { UsersService } from 'src/users/users.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { JwtStrategy } from './jwt.strategy';
-import { usersProvider } from 'src/users/users.providers';
-import { dbProviders } from 'src/db/db.providers';
+import { MongooseModule } from '@nestjs/mongoose';
+import { User, UserSchema } from 'src/users/entities/user.entity';
+// import { usersProvider } from 'src/users/users.providers';
 
 @Module({
   imports: [
     PassportModule,
     UsersModule,
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: { expiresIn: 600000 },
@@ -26,8 +28,7 @@ import { dbProviders } from 'src/db/db.providers';
     UsersService,
     LocalStrategy,
     JwtStrategy,
-    ...usersProvider,
-    ...dbProviders,
+    // ...usersProvider,
   ],
 })
 export class AuthModule {}
