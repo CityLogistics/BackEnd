@@ -7,12 +7,14 @@ import { Model } from 'mongoose';
 import * as moment from 'moment';
 import { pricePerKm, regionalPrices } from 'src/common/prices';
 import { MapService } from 'src/map/map.service';
+import { PaymentService } from 'src/payment/payment.service';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<Order>,
     private mapService: MapService,
+    private paymentService: PaymentService,
   ) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
@@ -28,8 +30,7 @@ export class OrdersService {
       { lat: 50.454722, lng: -104.606667 },
       { lat: 51.454722, lng: -104.606667 },
     );
-    const totalPrice = basePrice + (distance / 1000) * pricePerKm;
-
+    const totalPrice = basePrice + Math.ceil(distance / 1000) * pricePerKm;
     console.info({ basePrice, distance });
     const createdOrder = new this.orderModel({
       ...createOrderDto,
@@ -38,6 +39,11 @@ export class OrdersService {
       basePrice,
       totalPrice,
     });
+    const paymentUrl = await this.paymentService.createCheckout(
+      totalPrice,
+      createdOrder.id,
+    );
+    console.info({ paymentUrl });
     return await createdOrder.save();
   }
 

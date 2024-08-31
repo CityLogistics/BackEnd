@@ -6,6 +6,7 @@ import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     snapshot: true,
+    rawBody: true,
   });
   const config = new DocumentBuilder()
     .setTitle('City logistics')

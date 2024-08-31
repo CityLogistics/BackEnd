@@ -9,6 +9,7 @@ import { AdminModule } from './admin/admin.module';
 import { CommonModule } from './common/common.module';
 import { MapModule } from './map/map.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     AdminModule,
     CommonModule,
     MapModule,
+    PaymentModule,
   ],
 })
 export class AppModule {}

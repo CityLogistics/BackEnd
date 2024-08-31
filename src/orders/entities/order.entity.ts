@@ -4,6 +4,7 @@ import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import mongoose, { Date } from 'mongoose';
 
 export enum OrderStatus {
+  PENDING_PAYMENT = 'PENDING_PAYMENT',
   PENDING_ASSIGNMENT = 'PENDING_ASSIGNMENT',
   IN_TRANSIT = 'IN_TRANSIT',
   COMPLETED = 'PENDING',
@@ -96,7 +97,7 @@ export class Order {
   @Prop()
   time: string;
 
-  @Prop({ default: OrderStatus.PENDING_ASSIGNMENT })
+  @Prop({ default: OrderStatus.PENDING_PAYMENT })
   status: OrderStatus;
 
   @Prop()
