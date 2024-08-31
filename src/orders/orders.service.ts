@@ -17,7 +17,9 @@ export class OrdersService {
     private paymentService: PaymentService,
   ) {}
 
-  async create(createOrderDto: CreateOrderDto): Promise<Order> {
+  async create(
+    createOrderDto: CreateOrderDto,
+  ): Promise<{ order: Order; paymentUrl: string }> {
     const pickupDate = moment(createOrderDto.pickupDate)
       .startOf('day')
       .toString();
@@ -27,15 +29,16 @@ export class OrdersService {
       regionalPrices[dropOffAddress.province],
     );
     const distance = await this.mapService.getDistance(
-      { lat: 50.454722, lng: -104.606667 },
-      { lat: 51.454722, lng: -104.606667 },
+      { lat: pickupAddress.lat, lng: pickupAddress.lng },
+      { lat: dropOffAddress.lat, lng: dropOffAddress.lng },
     );
+    // { lat: 50.454722, lng: -104.606667 },
+    // { lat: 51.454722, lng: -104.606667 },
     const totalPrice = basePrice + Math.ceil(distance / 1000) * pricePerKm;
-    console.info({ basePrice, distance });
     const createdOrder = new this.orderModel({
       ...createOrderDto,
       pickupDate,
-      distance,
+      distance: Math.ceil(distance / 1000),
       basePrice,
       totalPrice,
     });
@@ -43,8 +46,11 @@ export class OrdersService {
       totalPrice,
       createdOrder.id,
     );
-    console.info({ paymentUrl });
-    return await createdOrder.save();
+    const order = await createdOrder.save();
+    return {
+      order,
+      paymentUrl,
+    };
   }
 
   async findAll(

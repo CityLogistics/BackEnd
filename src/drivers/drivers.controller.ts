@@ -15,6 +15,7 @@ import { UpdateDriverDto } from './dto/update-driver.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { GetDriverDto } from './dto/get-driver.dto';
+import { Public } from 'src/auth/constants';
 
 @ApiTags('drivers')
 @ApiBearerAuth()
@@ -23,6 +24,7 @@ import { GetDriverDto } from './dto/get-driver.dto';
 export class DriversController {
   constructor(private readonly driversService: DriversService) {}
 
+  @Public()
   @Post()
   create(@Body() createDriverDto: CreateDriverDto) {
     return this.driversService.create(createDriverDto);

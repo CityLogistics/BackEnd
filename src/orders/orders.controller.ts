@@ -16,6 +16,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Public } from 'src/auth/constants';
 
 @ApiTags('orders')
 @ApiBearerAuth()
@@ -24,6 +25,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
+  @Public()
   @Post()
   async create(@Body() createOrderDto: CreateOrderDto) {
     return await this.ordersService.create(createOrderDto);

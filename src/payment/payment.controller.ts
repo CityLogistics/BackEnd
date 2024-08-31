@@ -8,17 +8,20 @@ import {
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import Stripe from 'stripe';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('payment')
 export class PaymentController {
-  constructor(private paymentService: PaymentService) {}
+  constructor(
+    private paymentService: PaymentService,
+    private config: ConfigService,
+  ) {}
   @Post('/webhook')
   async webhook(
     @Req() request: RawBodyRequest<Request>,
     @Headers('stripe-signature') sig,
   ) {
-    const endpointSecret =
-      'whsec_ba7e34fffc85120d77cef31d87167371a80295f6b88ae4bf3ed967a467741302';
+    const endpointSecret = this.config.get('STRIPE_ENDPOINT_SECRET');
 
     let event: Stripe.Event;
     try {

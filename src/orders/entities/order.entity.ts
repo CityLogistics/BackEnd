@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import mongoose, { Date } from 'mongoose';
 
 export enum OrderStatus {
@@ -41,11 +41,11 @@ export enum Province {
 
 export class Address {
   @IsNotEmpty()
-  @IsString()
-  lat: string;
+  @IsNumber()
+  lat: number;
   @IsNotEmpty()
-  @IsString()
-  lng: string;
+  @IsNumber()
+  lng: number;
   @IsNotEmpty()
   @IsString()
   country: string;
