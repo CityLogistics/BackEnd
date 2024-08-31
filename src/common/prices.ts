@@ -16,4 +16,4 @@ export const regionalPrices = {
   [Province.YUKON]: 1500,
 };
 
-export const pricePerKm = 1;
+export const pricePerKm = 100;

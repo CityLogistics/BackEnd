@@ -7,15 +7,19 @@ import { Model } from 'mongoose';
 import * as moment from 'moment';
 import { pricePerKm, regionalPrices } from 'src/common/prices';
 import { MapService } from 'src/map/map.service';
+import { PaymentService } from 'src/payment/payment.service';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<Order>,
     private mapService: MapService,
+    private paymentService: PaymentService,
   ) {}
 
-  async create(createOrderDto: CreateOrderDto): Promise<Order> {
+  async create(
+    createOrderDto: CreateOrderDto,
+  ): Promise<{ order: Order; paymentUrl: string }> {
     const pickupDate = moment(createOrderDto.pickupDate)
       .startOf('day')
       .toString();
@@ -25,20 +29,28 @@ export class OrdersService {
       regionalPrices[dropOffAddress.province],
     );
     const distance = await this.mapService.getDistance(
-      { lat: 50.454722, lng: -104.606667 },
-      { lat: 51.454722, lng: -104.606667 },
+      { lat: pickupAddress.lat, lng: pickupAddress.lng },
+      { lat: dropOffAddress.lat, lng: dropOffAddress.lng },
     );
-    const totalPrice = basePrice + (distance / 1000) * pricePerKm;
-
-    console.info({ basePrice, distance });
+    // { lat: 50.454722, lng: -104.606667 },
+    // { lat: 51.454722, lng: -104.606667 },
+    const totalPrice = basePrice + Math.ceil(distance / 1000) * pricePerKm;
     const createdOrder = new this.orderModel({
       ...createOrderDto,
       pickupDate,
-      distance,
+      distance: Math.ceil(distance / 1000),
       basePrice,
       totalPrice,
     });
-    return await createdOrder.save();
+    const paymentUrl = await this.paymentService.createCheckout(
+      totalPrice,
+      createdOrder.id,
+    );
+    const order = await createdOrder.save();
+    return {
+      order,
+      paymentUrl,
+    };
   }
 
   async findAll(

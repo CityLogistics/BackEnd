@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import mongoose, { Date } from 'mongoose';
 
 export enum OrderStatus {
+  PENDING_PAYMENT = 'PENDING_PAYMENT',
   PENDING_ASSIGNMENT = 'PENDING_ASSIGNMENT',
   IN_TRANSIT = 'IN_TRANSIT',
   COMPLETED = 'PENDING',
@@ -40,11 +41,11 @@ export enum Province {
 
 export class Address {
   @IsNotEmpty()
-  @IsString()
-  lat: string;
+  @IsNumber()
+  lat: number;
   @IsNotEmpty()
-  @IsString()
-  lng: string;
+  @IsNumber()
+  lng: number;
   @IsNotEmpty()
   @IsString()
   country: string;
@@ -96,7 +97,7 @@ export class Order {
   @Prop()
   time: string;
 
-  @Prop({ default: OrderStatus.PENDING_ASSIGNMENT })
+  @Prop({ default: OrderStatus.PENDING_PAYMENT })
   status: OrderStatus;
 
   @Prop()

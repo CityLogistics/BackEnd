@@ -9,6 +9,7 @@ import { AdminModule } from './admin/admin.module';
 import { CommonModule } from './common/common.module';
 import { MapModule } from './map/map.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -22,7 +23,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
     MongooseModule.forRootAsync({
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB_URI'),
+        uri:
+          process.env.NODE_ENV !== 'production'
+            ? configService.get<string>('MONGODB_URI')
+            : configService.get<string>('MONGODB_URI2'),
       }),
       inject: [ConfigService],
     }),
@@ -31,6 +35,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     AdminModule,
     CommonModule,
     MapModule,
+    PaymentModule,
   ],
 })
 export class AppModule {}
