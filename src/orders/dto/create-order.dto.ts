@@ -8,6 +8,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Address, OrderType } from '../entities/order.entity';
+import { VehicleType } from 'src/drivers/entities/driver.entity';
 
 export class CreateOrderDto {
   @IsNotEmpty()
@@ -49,4 +50,7 @@ export class CreateOrderDto {
 
   @IsEnum(OrderType)
   type: OrderType;
+
+  @IsEnum(VehicleType)
+  vehicleType: VehicleType;
 }

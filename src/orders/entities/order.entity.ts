@@ -1,3 +1,4 @@
+import { VehicleType } from '@googlemaps/google-maps-services-js';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
@@ -102,6 +103,9 @@ export class Order {
 
   @Prop()
   type: OrderType;
+
+  @Prop()
+  vehicleType: VehicleType;
 
   @Prop()
   basePrice: number;

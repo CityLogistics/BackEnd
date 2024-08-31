@@ -1,0 +1,45 @@
+{
+  "order": {
+    "senderName": "string",
+    "pickupAddress": {
+      "lat": 51.454722,
+      "lng": -104.606667,
+      "country": "string",
+      "address": "string",
+      "province": "ALBERTA",
+      "placeId": "string"
+    },
+    "email": "string@a.ddd",
+    "pickupPhoneNumber": "+2348124038437",
+    "pickupDate": "2024-08-31T02:32:04.699+00:00",
+    "pickuptime": "string",
+    "recipientName": "string",
+    "dropOffAddress": {
+      "lat": 50.454722,
+      "lng": -104.606667,
+      "country": "string",
+      "address": "string",
+      "province": "ALBERTA",
+      "placeId": "string"
+    },
+    "vehicleType": "SALON",
+    "dropOffPhoneNumber": "+2348124038437",
+    "discription": "string",
+    "type": "HEALTH_AND_MEDICINE"
+  },
+
+  "driver": {
+    "firstName": "string",
+    "lastName": "string",
+    "email": "string@a.ddd",
+    "phoneNumber": "+2348124038437",
+    "image": "string",
+    "ownVehicle": true,
+    "vehicleType": "SALON",
+    "hasValidLicense": true,
+    "hasValidVehicleInsurance": true,
+    "availabiltyDays": ["MONDAY"],
+    "availabiltyTime": ["MORNING"],
+    "preferredTimeZone": "string"
+  }
+}
