@@ -23,10 +23,7 @@ import { PaymentModule } from './payment/payment.module';
     }),
     MongooseModule.forRootAsync({
       useFactory: async (configService: ConfigService) => ({
-        uri:
-          process.env.NODE_ENV !== 'production'
-            ? configService.get<string>('MONGODB_URI')
-            : configService.get<string>('MONGODB_URI2'),
+        uri: configService.get<string>('MONGODB_URI'),
       }),
       inject: [ConfigService],
     }),
