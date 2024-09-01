@@ -1,3 +1,4 @@
+import { VehicleType } from 'src/drivers/entities/driver.entity';
 import { Province } from 'src/orders/entities/order.entity';
 
 export const regionalPrices = {
@@ -14,6 +15,14 @@ export const regionalPrices = {
   [Province.QUEBEC]: 1500,
   [Province.SASKATCHEWAN]: 1500,
   [Province.YUKON]: 1500,
+};
+
+export const vehiclePrices = {
+  [VehicleType.SALON]: 800,
+  [VehicleType.FIVE_SEATER_SUV]: 1600,
+  [VehicleType.SEVEN_SEATER_SUV]: 2000,
+  [VehicleType.TRUCK]: 1800,
+  [VehicleType.VAN]: 1700,
 };
 
 export const pricePerKm = 100;
