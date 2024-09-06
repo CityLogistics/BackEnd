@@ -4,7 +4,7 @@ import {
   TravelMode,
   UnitSystem,
 } from '@googlemaps/google-maps-services-js';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -64,17 +64,21 @@ export class MapService extends Client {
   }
 
   async getDistance(start: LatLng, destination: LatLng): Promise<number> {
-    const distanceRes = await this.distancematrix({
-      params: {
-        origins: [start],
-        destinations: [destination],
-        mode: TravelMode.driving,
-        units: UnitSystem.metric,
-        key: this.accessKey,
-      },
-    });
+    try {
+      const distanceRes = await this.distancematrix({
+        params: {
+          origins: [start],
+          destinations: [destination],
+          mode: TravelMode.driving,
+          units: UnitSystem.metric,
+          key: this.accessKey,
+        },
+      });
 
-    const data = distanceRes.data.rows[0].elements[0].distance.value;
-    return data;
+      const data = distanceRes.data.rows[0].elements[0].distance.value;
+      return data;
+    } catch (error) {
+      throw new BadRequestException('distace location not found');
+    }
   }
 }

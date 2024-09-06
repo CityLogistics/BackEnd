@@ -59,7 +59,7 @@ export class AdminService {
     );
     const totalOrdersInTransit = await this.orderModel.countDocuments(
       {
-        status: OrderStatus.IN_TRANSIT,
+        status: OrderStatus.PROCESSING,
       },
       {
         hint: '_id_',
