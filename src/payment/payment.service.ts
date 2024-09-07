@@ -38,8 +38,8 @@ export class PaymentService extends Stripe {
         },
       ],
       mode: 'payment',
-      success_url: `https://basilisk-lucky-sharply.ngrok-free.app/success.html`,
-      cancel_url: `https://basilisk-lucky-sharply.ngrok-free.app/cancel.html`,
+      success_url: `https://citylogistics.ca/payment-success`,
+      cancel_url: `https://citylogistics.ca/payment-failed`,
       metadata: {
         orderId,
       },
