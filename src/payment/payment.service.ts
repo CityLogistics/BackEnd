@@ -38,8 +38,8 @@ export class PaymentService extends Stripe {
         },
       ],
       mode: 'payment',
-      success_url: `https://citylogistics.ca/payment-success`,
-      cancel_url: `https://citylogistics.ca/payment-failed`,
+      success_url: `https://mycitylogistics.ca/payment-success`,
+      cancel_url: `https://mycitylogistics.ca/payment-failed`,
       metadata: {
         orderId,
       },
