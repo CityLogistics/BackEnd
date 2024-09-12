@@ -5,14 +5,27 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Driver } from './entities/driver.entity';
 import { Model } from 'mongoose';
 import { GetDriverDto } from './dto/get-driver.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { DriverCreatedEvent } from './events/driver-created.event';
 
 @Injectable()
 export class DriversService {
-  constructor(@InjectModel(Driver.name) private driverModel: Model<Driver>) {}
+  constructor(
+    @InjectModel(Driver.name) private driverModel: Model<Driver>,
+    private eventEmitter: EventEmitter2,
+  ) {}
 
   async create(createDriverDto: CreateDriverDto): Promise<Driver> {
-    const createdDriver = await this.driverModel.create(createDriverDto);
-    return createdDriver.save();
+    const createdDriver = (
+      await this.driverModel.create(createDriverDto)
+    ).save();
+
+    const driverCreatedEvent = new DriverCreatedEvent();
+    driverCreatedEvent.driver = await createdDriver;
+
+    this.eventEmitter.emit('driver.created', driverCreatedEvent);
+
+    return createdDriver;
   }
 
   async findAll(getDriverDto: GetDriverDto): Promise<{

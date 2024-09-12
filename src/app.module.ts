@@ -10,12 +10,26 @@ import { CommonModule } from './common/common.module';
 import { MapModule } from './map/map.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PaymentModule } from './payment/payment.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { BullModule } from '@nestjs/bullmq';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    BullModule.forRootAsync({
+      useFactory: () => ({
+        connection: {
+          host: 'localhost',
+          port: 6379,
+        },
+      }),
+      inject: [ConfigService],
+    }),
+
+    EventEmitterModule.forRoot(),
     AuthModule,
     UsersModule,
     DevtoolsModule.register({
@@ -33,6 +47,7 @@ import { PaymentModule } from './payment/payment.module';
     CommonModule,
     MapModule,
     PaymentModule,
+    EmailModule,
   ],
 })
 export class AppModule {}
