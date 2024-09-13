@@ -49,7 +49,7 @@ export class Driver {
 
   @ApiProperty()
   @Prop({ required: true })
-  phoneNumber: number;
+  phoneNumber: string;
 
   @ApiProperty()
   @Prop({ required: true })
@@ -86,6 +86,9 @@ export class Driver {
   @ApiProperty()
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }] })
   orders: string[];
+
+  @Prop()
+  userId: mongoose.Schema.Types.ObjectId;
 }
 
 export const DriverSchema = SchemaFactory.createForClass(Driver);

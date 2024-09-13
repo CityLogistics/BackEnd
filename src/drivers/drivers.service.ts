@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateDriverDto } from './dto/create-driver.dto';
 import { UpdateDriverDto } from './dto/update-driver.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -67,13 +67,37 @@ export class DriversService {
       data,
     };
   }
+  async findMe(id: string): Promise<Driver> {
+    const driver = await this.driverModel.findOne({ userId: id }).exec();
+    if (!driver) throw new NotFoundException('driver not found');
 
-  async findOne(id: string): Promise<Driver> {
-    return await this.driverModel.findById(id).exec();
+    return driver;
+  }
+
+  async updateMe(
+    id: string,
+    updateDriverDto: UpdateDriverDto,
+  ): Promise<Driver> {
+    const driver = await this.driverModel.findOne({ userId: id });
+
+    if (!driver) throw new NotFoundException('driver not found');
+    return driver.updateOne(updateDriverDto).exec();
+    // return await this.driverModel.findByIdAndUpdate(id, updateDriverDto).exec();
   }
 
   async update(id: number, updateDriverDto: UpdateDriverDto): Promise<Driver> {
-    return await this.driverModel.findByIdAndUpdate(id, updateDriverDto).exec();
+    const driver = await this.driverModel.findById(id);
+
+    if (!driver) throw new NotFoundException('driver not found');
+    return driver.updateOne(updateDriverDto).exec();
+    // return await this.driverModel.findByIdAndUpdate(id, updateDriverDto).exec();
+  }
+
+  async findOne(id: string): Promise<Driver> {
+    const driver = await this.driverModel.findById(id).exec();
+    if (!driver) throw new NotFoundException('driver not found');
+
+    return driver;
   }
 
   async remove(id: number) {

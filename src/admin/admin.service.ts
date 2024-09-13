@@ -8,12 +8,16 @@ import mongoose, { Model } from 'mongoose';
 import { Driver, DriverStatus } from 'src/drivers/entities/driver.entity';
 import { Order, OrderStatus } from 'src/orders/entities/order.entity';
 import { Stat } from './entities/stat.entity';
+import { UsersService } from 'src/users/users.service';
+import { Gender } from 'src/users/dtos/create-user.dto';
+import { Role } from 'src/common/types';
 
 @Injectable()
 export class AdminService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<Order>,
     @InjectModel(Driver.name) private driverModel: Model<Driver>,
+    private userService: UsersService,
   ) {}
 
   async assignOrderToDriver(orderId: string, driverId: string): Promise<Order> {
@@ -39,6 +43,24 @@ export class AdminService {
     const driver = await this.driverModel.findById(driverId);
     if (!driver) throw new NotFoundException('driver not found');
     driver.status = status;
+
+    if (status == DriverStatus.ACCEPTED) {
+      const { firstName, lastName, email, phoneNumber, image } = driver;
+      const user = await this.userService.create({
+        firstName,
+        lastName,
+        email,
+        image,
+        phoneNumber,
+        password: 'password',
+        dateOfBirth: new Date().toDateString(),
+        gender: Gender.MALE,
+        driverId,
+        role: Role.DRIVER,
+      });
+      driver.userId = user._id;
+    }
+
     return driver.save();
   }
 

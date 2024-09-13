@@ -12,3 +12,9 @@ export enum Month {
   NOVEMBER = 'NOVEMBER',
   DECEMBER = 'DECEMBER',
 }
+
+export enum Role {
+  SUPER_ADMIN = 'SUPER_ADMIN',
+  ADMIN = 'ADMIN',
+  DRIVER = 'DRIVER',
+}

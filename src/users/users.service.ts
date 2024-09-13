@@ -18,6 +18,7 @@ export class UsersService {
         ...others,
         password: hashedPassword,
       });
+
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password: savedPassword, ...createdUserData } = (
         await createdUser.save()

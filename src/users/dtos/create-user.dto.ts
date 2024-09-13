@@ -3,11 +3,13 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsPhoneNumber,
   IsString,
 } from 'class-validator';
+import { Role } from 'src/common/types';
 
-enum Gender {
+export enum Gender {
   MALE = 'MALE',
   FEMALE = 'FEMALE',
 }
@@ -43,4 +45,10 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsEnum(Gender)
   gender: Gender;
+
+  @IsOptional()
+  driverId?: string;
+  @IsOptional()
+  @IsEnum(Role)
+  role?: Role;
 }

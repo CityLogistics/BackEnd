@@ -1,5 +1,6 @@
 import { Prop, SchemaFactory, Schema } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import { Role } from 'src/common/types';
 
 @Schema({ timestamps: true })
 export class User {
@@ -28,6 +29,12 @@ export class User {
 
   @Prop()
   gender: string;
+
+  @Prop()
+  role: Role;
+
+  @Prop()
+  driverId: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
