@@ -1,18 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Order } from './entities/order.entity';
+import { Order, OrderStatus } from './entities/order.entity';
 import { Model } from 'mongoose';
 import * as moment from 'moment';
 import { pricePerKm, regionalPrices, vehiclePrices } from 'src/common/prices';
 import { MapService } from 'src/map/map.service';
 import { PaymentService } from 'src/payment/payment.service';
+import { Transaction } from 'src/transactions/entities/transaction.entity';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<Order>,
+    @InjectModel(Transaction.name) private transactionModel: Model<Transaction>,
     private mapService: MapService,
     private paymentService: PaymentService,
   ) {}
@@ -186,6 +188,28 @@ export class OrdersService {
       .exec();
 
     return order;
+  }
+
+  async reject(id: string): Promise<{ order: Order; status: string }> {
+    try {
+      const order = await this.orderModel
+        .findByIdAndUpdate(id, { status: OrderStatus.REJECTED })
+        .exec();
+
+      const tranaction = await this.transactionModel.findOne({
+        refrence: order.tranasctionReference,
+      });
+
+      if (!tranaction) throw new BadRequestException('Transaction not found');
+
+      const refund = await this.paymentService.issueRefund(
+        tranaction.paymentIntent,
+      );
+
+      return { order, status: refund };
+    } catch (error) {
+      throw new BadRequestException();
+    }
   }
 
   async remove(id: string): Promise<Order> {

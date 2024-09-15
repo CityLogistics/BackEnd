@@ -1,6 +1,7 @@
 import { Prop, SchemaFactory, Schema } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { Role } from 'src/common/types';
+import { Province } from 'src/orders/entities/order.entity';
 
 @Schema({ timestamps: true })
 export class User {
@@ -35,6 +36,12 @@ export class User {
 
   @Prop()
   driverId: string;
+
+  @Prop()
+  province?: Province;
+
+  @Prop()
+  city: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

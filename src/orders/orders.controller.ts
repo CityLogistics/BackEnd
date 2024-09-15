@@ -125,6 +125,11 @@ export class OrdersController {
     return await this.ordersService.findOne(id);
   }
 
+  @Post('reject/:id')
+  async rejectOrder(@Param('id') id: string) {
+    return await this.ordersService.reject(id);
+  }
+
   @Patch(':id')
   async update(
     @Param('id') id: string,

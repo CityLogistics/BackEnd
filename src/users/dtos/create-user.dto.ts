@@ -6,10 +6,13 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsString,
+  ValidateIf,
 } from 'class-validator';
 import { Role } from 'src/common/types';
+import { Province } from 'src/orders/entities/order.entity';
 
 export enum Gender {
+  NOT_SELECTED = 'NOT_SELECTED',
   MALE = 'MALE',
   FEMALE = 'FEMALE',
 }
@@ -48,7 +51,17 @@ export class CreateUserDto {
 
   @IsOptional()
   driverId?: string;
+
   @IsOptional()
   @IsEnum(Role)
   role?: Role;
+
+  @ValidateIf((o) => o.role == Role.ADMIN)
+  @IsEnum(Province)
+  province?: Province;
+
+  @ValidateIf((o) => o.role == Role.ADMIN)
+  @IsNotEmpty()
+  @IsString()
+  city: string;
 }

@@ -5,10 +5,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Driver, DriverSchema } from './entities/driver.entity';
 import { DriverCreatedListener } from './listeners/driver-created.listener';
 import { EmailModule } from 'src/email/email.module';
+import { Order, OrderSchema } from 'src/orders/entities/order.entity';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Driver.name, schema: DriverSchema }]),
+    MongooseModule.forFeature([
+      { name: Driver.name, schema: DriverSchema },
+      { name: Order.name, schema: OrderSchema },
+    ]),
     EmailModule,
   ],
   controllers: [DriversController],

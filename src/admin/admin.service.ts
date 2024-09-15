@@ -28,7 +28,7 @@ export class AdminService {
     if (!driver) throw new NotFoundException('driver not found');
 
     order.driver = driverId;
-    order.status = OrderStatus.PROCESSING;
+    order.status = OrderStatus.ASSIGNED;
     order.populate('driver');
     return order.save();
   }
@@ -54,9 +54,10 @@ export class AdminService {
         phoneNumber,
         password: 'password',
         dateOfBirth: new Date().toDateString(),
-        gender: Gender.MALE,
+        gender: Gender.NOT_SELECTED,
         driverId,
         role: Role.DRIVER,
+        city: '',
       });
       driver.userId = user._id;
     }

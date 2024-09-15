@@ -7,11 +7,14 @@ import { Model } from 'mongoose';
 import { GetDriverDto } from './dto/get-driver.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { DriverCreatedEvent } from './events/driver-created.event';
+import { Order, OrderStatus } from 'src/orders/entities/order.entity';
+import { Decision } from 'src/common/types';
 
 @Injectable()
 export class DriversService {
   constructor(
     @InjectModel(Driver.name) private driverModel: Model<Driver>,
+    @InjectModel(Order.name) private orderModel: Model<Order>,
     private eventEmitter: EventEmitter2,
   ) {}
 
@@ -102,5 +105,22 @@ export class DriversService {
 
   async remove(id: number) {
     return await this.driverModel.findByIdAndDelete(id).exec();
+  }
+
+  async decideOrderAssignment(user, orderId, action: Decision): Promise<Order> {
+    const order = await this.orderModel.findOne({
+      _id: orderId,
+      driver: user.driverId,
+      status: OrderStatus.ASSIGNED,
+    });
+    if (!order) throw new NotFoundException('order not found');
+
+    if (action == Decision.DECLINE) {
+      order.driver = null;
+      order.status = OrderStatus.PENDING_ASSIGNMENT;
+    } else {
+      order.status = OrderStatus.PROCESSING;
+    }
+    return order.save();
   }
 }

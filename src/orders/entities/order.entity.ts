@@ -6,6 +6,8 @@ import mongoose, { Date } from 'mongoose';
 
 export enum OrderStatus {
   PENDING_PAYMENT = 'PENDING_PAYMENT',
+  PAYMENT_FAILED = 'PAYMENT_FAILED',
+  ASSIGNED = 'ASSIGNED',
   PENDING_ASSIGNMENT = 'PENDING_ASSIGNMENT',
   IN_TRANSIT = 'IN_TRANSIT',
   COMPLETED = 'PENDING',
@@ -118,6 +120,9 @@ export class Order {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Driver' })
   driver: string;
+
+  @Prop()
+  tranasctionReference?: string;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

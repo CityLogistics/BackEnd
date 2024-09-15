@@ -9,16 +9,18 @@ import {
   UseGuards,
   Query,
   Request,
+  ParseEnumPipe,
+  BadRequestException,
 } from '@nestjs/common';
 import { DriversService } from './drivers.service';
 import { CreateDriverDto } from './dto/create-driver.dto';
 import { UpdateDriverDto } from './dto/update-driver.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { GetDriverDto } from './dto/get-driver.dto';
 import { Public } from 'src/auth/constants';
 import { Roles } from 'src/auth/role.decorator';
-import { Role } from 'src/common/types';
+import { Decision, Role } from 'src/common/types';
 import { RolesGuard } from 'src/auth/roles.guard';
 
 @ApiTags('drivers')
@@ -72,5 +74,24 @@ export class DriversController {
   @Roles(Role.SUPER_ADMIN)
   remove(@Param('id') id: string) {
     return this.driversService.remove(+id);
+  }
+
+  @ApiBody({ type: Object })
+  @Patch('decide-order-assignment/:id')
+  @Roles(Role.DRIVER)
+  rejectOrderAssignment(
+    @Param('id') id: string,
+    @Request() req,
+    @Body(
+      'action',
+      new ParseEnumPipe(Decision, {
+        exceptionFactory: () => {
+          throw new BadRequestException(`invalid action value`);
+        },
+      }),
+    )
+    action: Decision,
+  ) {
+    return this.driversService.decideOrderAssignment(req.user, id, action);
   }
 }

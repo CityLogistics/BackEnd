@@ -18,3 +18,8 @@ export enum Role {
   ADMIN = 'ADMIN',
   DRIVER = 'DRIVER',
 }
+
+export enum Decision {
+  ACCEPT = 'ACCEPT',
+  DECLINE = 'DECLINE',
+}

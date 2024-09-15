@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Headers,
   Post,
@@ -36,10 +37,19 @@ export class PaymentController {
     switch (event.type) {
       case 'checkout.session.completed':
         const session: Stripe.Checkout.Session = event.data.object;
-        console.info({ session });
-        this.paymentService.updatePaymentStatus(
+        this.paymentService.updatePaymentCompleted(
           session.metadata['orderId'],
           session.amount_total,
+          session.id,
+          session.payment_intent as string,
+        );
+        break;
+
+      case 'checkout.session.expired':
+        this.paymentService.updatePaymentFailed(
+          session.metadata['orderId'],
+          session.amount_total,
+          session.id,
         );
         // Then define and call a function to handle the event invoice.payment_succeeded
         break;
@@ -47,5 +57,10 @@ export class PaymentController {
       default:
         console.log(`Unhandled event type ${event.type}`);
     }
+  }
+
+  @Post('refund')
+  async refund(@Body('intent') intent: string) {
+    return await this.paymentService.issueRefund(intent);
   }
 }

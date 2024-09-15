@@ -13,11 +13,13 @@ import { PaymentModule } from './payment/payment.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { BullModule } from '@nestjs/bullmq';
 import { EmailModule } from './email/email.module';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: 'local.env',
     }),
     BullModule.forRootAsync({
       useFactory: () => ({
@@ -48,6 +50,7 @@ import { EmailModule } from './email/email.module';
     MapModule,
     PaymentModule,
     EmailModule,
+    TransactionsModule,
   ],
 })
 export class AppModule {}
