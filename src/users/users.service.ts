@@ -11,11 +11,11 @@ export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
+    const password = 'password';
     try {
-      const { password, ...others } = createUserDto;
       const hashedPassword = bcrypt.hashSync(password, 10);
       const createdUser = new this.userModel({
-        ...others,
+        ...createUserDto,
         password: hashedPassword,
       });
 
@@ -49,5 +49,28 @@ export class UsersService {
 
   async findOne(email: string): Promise<User | undefined> {
     return (await this.userModel.findOne({ email }).exec())?.toObject();
+  }
+
+  async updatePassword(
+    id: string,
+    password: string,
+    newPassword: string,
+  ): Promise<any> {
+    try {
+      const user = await this.userModel.findById(id).exec();
+
+      if (!bcrypt.compareSync(password, user.password))
+        throw new BadRequestException('invalid password');
+      const hashedNewPassword = bcrypt.hashSync(newPassword, 10);
+
+      user.password = hashedNewPassword;
+      user.save();
+
+      return { message: 'password saved' };
+    } catch (error) {
+      throw new BadRequestException(
+        error.message ?? 'An error occured, please contact support',
+      );
+    }
   }
 }

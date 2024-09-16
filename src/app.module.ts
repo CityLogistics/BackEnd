@@ -14,18 +14,32 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { BullModule } from '@nestjs/bullmq';
 import { EmailModule } from './email/email.module';
 import { TransactionsModule } from './transactions/transactions.module';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: 'local.env',
+      envFilePath: process.env.NODE_ENV !== 'production' ? 'local.env' : '.env',
     }),
     BullModule.forRootAsync({
-      useFactory: () => ({
+      useFactory: async (configService: ConfigService) => ({
         connection: {
-          host: 'localhost',
-          port: 6379,
+          host: configService.get('BULL_HOST'),
+          port: configService.get('BULL_PORT'),
+        },
+      }),
+      inject: [ConfigService],
+    }),
+    MailerModule.forRootAsync({
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          host: configService.get('SMTP_HOST'),
+          port: configService.get('SMTP_PORT'),
+          auth: {
+            user: configService.get('SMTP_USER'),
+            pass: configService.get('SMTP_PASS'),
+          },
         },
       }),
       inject: [ConfigService],

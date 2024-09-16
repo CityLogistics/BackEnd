@@ -5,7 +5,10 @@ import {
   IsNumber,
   IsOptional,
 } from 'class-validator';
-import { TransactionStatus } from '../entities/transaction.entity';
+import {
+  TransactionStatus,
+  TransactionType,
+} from '../entities/transaction.entity';
 
 export class GetTransactionDto {
   @IsOptional()
@@ -18,6 +21,13 @@ export class GetTransactionDto {
     each: true,
   })
   status?: TransactionStatus[];
+
+  @IsOptional()
+  @IsArray({})
+  @IsEnum(TransactionType, {
+    each: true,
+  })
+  transactionType?: TransactionType[];
 
   @IsNotEmpty()
   @IsNumber()

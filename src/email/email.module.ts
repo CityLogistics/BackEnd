@@ -3,6 +3,7 @@ import { EmailService } from './email.service';
 import { BullModule } from '@nestjs/bullmq';
 import { AudioConsumer } from './processors/email.processor';
 // import { join } from 'path';
+import { EmailController } from './email.controller';
 
 @Module({
   imports: [
@@ -13,5 +14,6 @@ import { AudioConsumer } from './processors/email.processor';
   ],
   providers: [EmailService, AudioConsumer],
   exports: [BullModule],
+  controllers: [EmailController],
 })
 export class EmailModule {}

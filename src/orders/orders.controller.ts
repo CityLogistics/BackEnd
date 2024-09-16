@@ -10,6 +10,7 @@ import {
   Query,
   ParseArrayPipe,
   ParseIntPipe,
+  Request,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -48,6 +49,7 @@ export class OrdersController {
   })
   @Get()
   async findAll(
+    @Request() req,
     @Query(
       'dates',
       new ParseArrayPipe({ items: String, separator: ',', optional: true }),
@@ -67,6 +69,8 @@ export class OrdersController {
     @Query('limit', ParseIntPipe) limit: number,
   ) {
     return await this.ordersService.findAll(
+      req.user,
+
       dates,
       orderTypes,
       orderStatus,
@@ -87,6 +91,7 @@ export class OrdersController {
   })
   @Get('new')
   async findNew(
+    @Request() req,
     @Query(
       'dates',
       new ParseArrayPipe({ items: String, separator: ',', optional: true }),
@@ -100,11 +105,18 @@ export class OrdersController {
     @Query('page', ParseIntPipe) page: number,
     @Query('limit', ParseIntPipe) limit: number,
   ) {
-    return await this.ordersService.findNew(dates, orderTypes, page, limit);
+    return await this.ordersService.findNew(
+      req.user,
+      dates,
+      orderTypes,
+      page,
+      limit,
+    );
   }
 
   @Get('/find-by-date')
   async findByDateRange(
+    @Request() req,
     @Query('startDate')
     startDate: Date,
     @Query('endDate')
@@ -113,6 +125,7 @@ export class OrdersController {
     @Query('limit', ParseIntPipe) limit: number,
   ) {
     return await this.ordersService.findByDateRange(
+      req.user,
       startDate,
       endDate,
       page,

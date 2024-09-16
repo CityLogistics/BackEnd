@@ -52,7 +52,6 @@ export class AdminService {
         email,
         image,
         phoneNumber,
-        password: 'password',
         dateOfBirth: new Date().toDateString(),
         gender: Gender.NOT_SELECTED,
         driverId,

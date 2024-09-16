@@ -30,7 +30,16 @@ export class AuthService {
       id: user._id,
       role: user.role,
       driverId: user.driverId,
+      province: user.province,
     };
     return { access_token: this.jwtService.sign(payload), user };
+  }
+
+  async changeUserPassword(
+    userId: string,
+    password: string,
+    newPassword: string,
+  ): Promise<any> {
+    return this.usersService.updatePassword(userId, password, newPassword);
   }
 }

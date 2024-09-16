@@ -9,6 +9,8 @@ import { pricePerKm, regionalPrices, vehiclePrices } from 'src/common/prices';
 import { MapService } from 'src/map/map.service';
 import { PaymentService } from 'src/payment/payment.service';
 import { Transaction } from 'src/transactions/entities/transaction.entity';
+import { User } from 'src/users/entities/user.entity';
+import { Role } from 'src/common/types';
 
 @Injectable()
 export class OrdersService {
@@ -61,6 +63,7 @@ export class OrdersService {
   }
 
   async findAll(
+    user: Partial<User>,
     dates: string[],
     orderTypes: string[],
     orderStatus: string[],
@@ -73,6 +76,20 @@ export class OrdersService {
     let query: any = {
       status: { $ne: 'PENDING_ASSIGNMENT' },
     };
+
+    if (user.role == Role.ADMIN) {
+      query = {
+        ...query,
+        'pickupAddress.province': user.province,
+      };
+    }
+
+    if (user.role == Role.DRIVER) {
+      query = {
+        ...query,
+        driver: user.driverId,
+      };
+    }
 
     if (dates) {
       query = {
@@ -108,6 +125,7 @@ export class OrdersService {
   }
 
   async findByDateRange(
+    user: Partial<User>,
     startDate: Date,
     endDate: Date,
     page: number,
@@ -116,10 +134,23 @@ export class OrdersService {
     count: number;
     data: Order[];
   }> {
-    const query: any = {
+    let query: any = {
       status: { $ne: 'PENDING_ASSIGNMENT' },
       updatedAt: { $gte: startDate, $lte: endDate },
     };
+    if (user.role == Role.ADMIN) {
+      query = {
+        ...query,
+        'pickupAddress.province': user.province,
+      };
+    }
+
+    if (user.role == Role.DRIVER) {
+      query = {
+        ...query,
+        driver: user.driverId,
+      };
+    }
 
     const count = await this.orderModel.countDocuments(query, { hint: '_id_' });
 
@@ -136,6 +167,7 @@ export class OrdersService {
   }
 
   async findNew(
+    user: Partial<User>,
     dates: string[],
     orderTypes: string[],
     page: number,
@@ -147,6 +179,20 @@ export class OrdersService {
     let query: any = {
       status: 'PENDING_ASSIGNMENT',
     };
+
+    if (user.role == Role.ADMIN) {
+      query = {
+        ...query,
+        'pickupAddress.province': user.province,
+      };
+    }
+
+    if (user.role == Role.DRIVER) {
+      query = {
+        ...query,
+        driver: user.driverId,
+      };
+    }
 
     if (dates) {
       query = {

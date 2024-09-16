@@ -26,12 +26,16 @@ export class TransactionsService {
     count: number;
     data: Transaction[];
   }> {
-    const { dates, status, limit, page } = getTransactionDto;
+    const { dates, status, transactionType, limit, page } = getTransactionDto;
 
     let query: any = {};
 
     if (status) {
       query = { ...query, status: { $in: status } };
+    }
+
+    if (transactionType) {
+      query = { ...query, transactionType: { $in: transactionType } };
     }
 
     if (dates) {
@@ -52,7 +56,6 @@ export class TransactionsService {
       .find(query)
       .skip(limit * page)
       .limit(limit)
-      .populate('driver')
       .exec();
 
     return {
