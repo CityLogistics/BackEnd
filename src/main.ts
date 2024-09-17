@@ -25,7 +25,23 @@ async function bootstrap() {
       },
     }),
   );
-  app.enableCors();
+  app.enableCors({
+    origin: [
+      'https://mycitylogistics.ca',
+      'http://mycitylogistics.ca',
+
+      'https://mycitylogistics.com',
+      'http://mycitylogistics.com',
+
+      'https://admin.mycitylogistics.ca',
+      'http://admin.mycitylogistics.ca',
+
+      'https://admin.mycitylogistics.com',
+      'http://admin.mycitylogistics.com',
+    ],
+    methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
+    credentials: true,
+  });
   await app.listen(3000);
 }
 bootstrap();

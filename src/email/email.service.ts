@@ -7,7 +7,7 @@ export class EmailService {
   async sendEmail() {
     const t = await this.mailerService.sendMail({
       to: 'ayomidedavid5624@gmail.com', // list of receivers
-      from: 'mailtrap@demomailtrap.com', // sender address
+      from: 'info@mycitylogistics.com', // sender address
       subject: 'Testing Nest MailerModule ✔', // Subject line
       text: 'welcome', // plaintext body
       html: '<b>welcome</b>', // HTML body content
