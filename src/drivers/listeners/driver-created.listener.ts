@@ -14,7 +14,7 @@ export class DriverCreatedListener {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const job = await this.emailQueue.add('driver.created', {
-      foo: 'bar',
+      email: event.driver.email,
       event,
     });
   }

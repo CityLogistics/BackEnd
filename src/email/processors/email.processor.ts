@@ -11,7 +11,10 @@ export class AudioConsumer extends WorkerHost {
   async process(job: Job<any, any, string>): Promise<any> {
     switch (job.name) {
       case 'driver.created': {
-        this.emailService.sendEmail();
+        const email = job.data?.email;
+        this.emailService.sendEmail({
+          to: email,
+        });
         return {};
       }
       case 'concatenate': {

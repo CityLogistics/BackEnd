@@ -39,7 +39,7 @@ async function bootstrap() {
       'https://admin.mycitylogistics.com',
       'http://admin.mycitylogistics.com',
     ],
-    methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
+    methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS,PATCH',
     credentials: true,
   });
   await app.listen(3000);
