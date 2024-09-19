@@ -46,7 +46,7 @@ async function bootstrap() {
       'http://10.0.2.2',
     ],
     methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS,PATCH',
-    credentials: true,
+    credentials: false,
   });
   await app.listen(3000);
 }
