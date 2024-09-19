@@ -9,4 +9,5 @@ export const ORDER_ASSIGNED_DRIVER = 'order.assigned.driver';
 export const ORDER_ACCEPTED_DRIVER = 'order.accepted.driver';
 export const ORDER_REJECTED_DRIVER = 'order.rejected.driver';
 export const ORDER_DELIVERED = 'order.delivered';
+export const ORDER_COMPLETED = 'order.completed';
 export const ADMIN_CREATED = 'admin.created';

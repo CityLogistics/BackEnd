@@ -11,11 +11,16 @@ import { Stat } from './entities/stat.entity';
 import { UsersService } from 'src/users/users.service';
 import { Gender } from 'src/users/dtos/create-user.dto';
 import { Role } from 'src/common/types';
-import { DRIVER_APPROVED, DRIVER_DECLINED } from 'src/common/jobs';
+import {
+  DRIVER_APPROVED,
+  DRIVER_DECLINED,
+  ORDER_ASSIGNED_DRIVER,
+} from 'src/common/jobs';
 import { DriverApprovedEvent } from 'src/drivers/events/driver-approved.event';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { randString } from 'src/common/utils';
 import { DriverDeclinedEvent } from 'src/drivers/events/driver-declined.event';
+import { OrderAssignedDriverEvent } from 'src/orders/events/order-assigned-driver.event';
 
 @Injectable()
 export class AdminService {
@@ -36,6 +41,12 @@ export class AdminService {
     order.driver = driverId;
     order.status = OrderStatus.ASSIGNED;
     order.populate('driver');
+
+    const orderAssignedDriverEvent = new OrderAssignedDriverEvent();
+    orderAssignedDriverEvent.order = order;
+    orderAssignedDriverEvent.email = driver.email;
+
+    this.eventEmitter.emit(ORDER_ASSIGNED_DRIVER, orderAssignedDriverEvent);
     return order.save();
   }
 

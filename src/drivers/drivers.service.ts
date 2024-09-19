@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateDriverDto } from './dto/create-driver.dto';
 import { UpdateDriverDto } from './dto/update-driver.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -9,6 +13,14 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { DriverCreatedEvent } from './events/driver-created.event';
 import { Order, OrderStatus } from 'src/orders/entities/order.entity';
 import { Decision } from 'src/common/types';
+import {
+  ORDER_ACCEPTED_DRIVER,
+  ORDER_DELIVERED,
+  ORDER_REJECTED_DRIVER,
+} from 'src/common/jobs';
+import { OrderRejectedDriverEvent } from 'src/orders/events/order-rejected-driver.event';
+import { OrderAcceptedDriverEvent } from 'src/orders/events/order-accepted-driver.event';
+import { OrderDeliveredEvent } from 'src/orders/events/order-delivered';
 
 @Injectable()
 export class DriversService {
@@ -118,8 +130,39 @@ export class DriversService {
     if (action == Decision.DECLINE) {
       order.driver = null;
       order.status = OrderStatus.PENDING_ASSIGNMENT;
+      const orderAssignedDriverEvent = new OrderRejectedDriverEvent();
+      orderAssignedDriverEvent.order = await order;
+      orderAssignedDriverEvent.driverName = user.firstName;
+
+      this.eventEmitter.emit(ORDER_REJECTED_DRIVER, orderAssignedDriverEvent);
     } else {
       order.status = OrderStatus.PROCESSING;
+      const orderAssignedDriverEvent = new OrderAcceptedDriverEvent();
+      orderAssignedDriverEvent.order = await order;
+      orderAssignedDriverEvent.driverName = user.firstName;
+
+      this.eventEmitter.emit(ORDER_ACCEPTED_DRIVER, orderAssignedDriverEvent);
+    }
+    return order.save();
+  }
+
+  async updateOrderStatus(user, orderId, status: OrderStatus): Promise<Order> {
+    const order = await this.orderModel.findOne({
+      _id: orderId,
+      driver: user.driverId,
+      status: OrderStatus.PROCESSING,
+    });
+    if (!order) throw new NotFoundException('order not found');
+
+    if (status == OrderStatus.DELIVERED) {
+      order.status = status;
+      const orderDeliveredEvent = new OrderDeliveredEvent();
+      orderDeliveredEvent.order = order;
+      orderDeliveredEvent.driverName = user.firstName;
+
+      this.eventEmitter.emit(ORDER_DELIVERED, orderDeliveredEvent);
+    } else {
+      throw new BadRequestException('Invalid order status');
     }
     return order.save();
   }

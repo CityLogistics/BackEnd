@@ -31,6 +31,7 @@ export class AuthService {
       role: user.role,
       driverId: user.driverId,
       province: user.province,
+      firstName: user.firstName,
     };
     return { access_token: this.jwtService.sign(payload), user };
   }

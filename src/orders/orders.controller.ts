@@ -18,9 +18,14 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Public } from 'src/auth/constants';
+import { Roles } from 'src/auth/role.decorator';
+import { Role } from 'src/common/types';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { OrderStatus } from './entities/order.entity';
 
 @ApiTags('orders')
 @ApiBearerAuth()
+@UseGuards(RolesGuard)
 @UseGuards(JwtAuthGuard)
 @Controller('orders')
 export class OrdersController {
@@ -139,11 +144,13 @@ export class OrdersController {
   }
 
   @Post('reject/:id')
+  @Roles(Role.SUPER_ADMIN)
   async rejectOrder(@Param('id') id: string) {
     return await this.ordersService.reject(id);
   }
 
   @Patch(':id')
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
   async update(
     @Param('id') id: string,
     @Body() updateOrderDto: UpdateOrderDto,
@@ -151,7 +158,17 @@ export class OrdersController {
     return await this.ordersService.update(id, updateOrderDto);
   }
 
+  @Patch('status/:id')
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+  async updateStatus(
+    @Param('id') id: string,
+    @Body('status') status: OrderStatus,
+  ) {
+    return await this.ordersService.updateStatus(id, status);
+  }
+
   @Delete(':id')
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
   async remove(@Param('id') id: string) {
     return await this.ordersService.remove(id);
   }

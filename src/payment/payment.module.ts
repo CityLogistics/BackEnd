@@ -8,6 +8,7 @@ import {
   TransactionSchema,
 } from 'src/transactions/entities/transaction.entity';
 import { TransactionsModule } from 'src/transactions/transactions.module';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { TransactionsModule } from 'src/transactions/transactions.module';
       { name: Transaction.name, schema: TransactionSchema },
     ]),
     TransactionsModule,
+    EmailModule,
   ],
   providers: [PaymentService],
   controllers: [PaymentController],

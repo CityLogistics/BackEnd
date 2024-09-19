@@ -1,8 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { ORDER_PAYMENT_COMPLETED } from 'src/common/jobs';
 import { Order, OrderStatus } from 'src/orders/entities/order.entity';
+import { OrderPaymentCompletedEvent } from 'src/orders/events/order-payment-completed.event';
 import {
   TransactionStatus,
   TransactionType,
@@ -16,6 +19,7 @@ export class PaymentService extends Stripe {
     private config: ConfigService,
     private transactionService: TransactionsService,
     @InjectModel(Order.name) private orderModel: Model<Order>,
+    private eventEmitter: EventEmitter2,
   ) {
     super(config.get('STRIPE_SECRETE_KEY'));
   }
@@ -74,6 +78,15 @@ export class PaymentService extends Stripe {
         order.status = OrderStatus.PENDING_ASSIGNMENT;
         order.tranasctionReference = refrence;
 
+        order.tranasctionReference = refrence;
+        const orderPaymentCompletedEvent = new OrderPaymentCompletedEvent();
+        orderPaymentCompletedEvent.order = order;
+
+        this.eventEmitter.emit(
+          ORDER_PAYMENT_COMPLETED,
+          orderPaymentCompletedEvent,
+        );
+
         await order.save();
       } else {
         this.transactionService.create({
@@ -86,7 +99,7 @@ export class PaymentService extends Stripe {
           transactionType: TransactionType.ORDER,
         });
         order.status = OrderStatus.PAYMENT_FAILED;
-        order.tranasctionReference = refrence;
+
         await order.save();
       }
     } catch (error) {

@@ -13,6 +13,13 @@ import { User } from 'src/users/entities/user.entity';
 import { Role } from 'src/common/types';
 import { OrderCreatedEvent } from './events/order-created.event';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { OrderRejectedAdminEvent } from './events/order-rejected-admin.event';
+import {
+  ORDER_COMPLETED,
+  ORDER_CREATED,
+  ORDER_REJECTED_ADMIN,
+} from 'src/common/jobs';
+import { OrderCompletedEvent } from './events/order-completed';
 
 @Injectable()
 export class OrdersService {
@@ -64,7 +71,7 @@ export class OrdersService {
     orderCreatedEvent.order = await order;
     orderCreatedEvent.paymentUrl = paymentUrl;
 
-    this.eventEmitter.emit('order.created', orderCreatedEvent);
+    this.eventEmitter.emit(ORDER_CREATED, orderCreatedEvent);
 
     return {
       order,
@@ -246,6 +253,22 @@ export class OrdersService {
     return order;
   }
 
+  async updateStatus(id: string, status: OrderStatus): Promise<Order> {
+    const order = await this.orderModel
+      .findByIdAndUpdate(id, { status })
+      .populate('driver')
+      .exec();
+
+    if (status == OrderStatus.COMPLETED) {
+      const orderCompletedEvent = new OrderCompletedEvent();
+      orderCompletedEvent.order = order;
+
+      this.eventEmitter.emit(ORDER_COMPLETED, orderCompletedEvent);
+    }
+
+    return order;
+  }
+
   async reject(id: string): Promise<{ order: Order; status: string }> {
     try {
       const order = await this.orderModel
@@ -261,6 +284,11 @@ export class OrdersService {
       const refund = await this.paymentService.issueRefund(
         tranaction.paymentIntent,
       );
+
+      const orderRejectedAdminEvent = new OrderRejectedAdminEvent();
+      orderRejectedAdminEvent.order = await order;
+
+      this.eventEmitter.emit(ORDER_REJECTED_ADMIN, orderRejectedAdminEvent);
 
       return { order, status: refund };
     } catch (error) {

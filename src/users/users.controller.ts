@@ -13,12 +13,15 @@ import { UpdateUserDto } from './dtos/update-user.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { randString } from 'src/common/utils';
+import { Roles } from 'src/auth/role.decorator';
+import { Role } from 'src/common/types';
 
 @Controller('users')
 export class UsersController {
   constructor(private userService: UsersService) {}
 
   @Post()
+  @Roles(Role.SUPER_ADMIN)
   createuser(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.userService.create({
       ...createUserDto,
@@ -29,6 +32,7 @@ export class UsersController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Patch()
+  // @Roles(Role.SUPER_ADMIN, Role.ADMIN)
   updateuser(
     @Request() req,
     @Body() updateUserDto: UpdateUserDto,

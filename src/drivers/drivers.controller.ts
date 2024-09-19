@@ -22,6 +22,7 @@ import { Public } from 'src/auth/constants';
 import { Roles } from 'src/auth/role.decorator';
 import { Decision, Role } from 'src/common/types';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { OrderStatus } from 'src/orders/entities/order.entity';
 
 @ApiTags('drivers')
 @ApiBearerAuth()
@@ -93,5 +94,15 @@ export class DriversController {
     action: Decision,
   ) {
     return this.driversService.decideOrderAssignment(req.user, id, action);
+  }
+
+  @Patch('order/:id')
+  @Roles(Role.DRIVER)
+  async updateDriverOrderStatus(
+    @Param('id') id: string,
+    @Request() req,
+    @Body('status') status: OrderStatus,
+  ) {
+    return await this.driversService.updateOrderStatus(req.user, id, status);
   }
 }

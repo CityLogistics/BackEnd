@@ -20,6 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       role: payload.role,
       driverId: payload.driverId,
       province: payload.province,
+      firstName: payload.firstName,
     };
   }
 }
