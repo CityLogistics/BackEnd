@@ -11,6 +11,11 @@ import { Stat } from './entities/stat.entity';
 import { UsersService } from 'src/users/users.service';
 import { Gender } from 'src/users/dtos/create-user.dto';
 import { Role } from 'src/common/types';
+import { DRIVER_APPROVED, DRIVER_DECLINED } from 'src/common/jobs';
+import { DriverApprovedEvent } from 'src/drivers/events/driver-approved.event';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { randString } from 'src/common/utils';
+import { DriverDeclinedEvent } from 'src/drivers/events/driver-declined.event';
 
 @Injectable()
 export class AdminService {
@@ -18,6 +23,7 @@ export class AdminService {
     @InjectModel(Order.name) private orderModel: Model<Order>,
     @InjectModel(Driver.name) private driverModel: Model<Driver>,
     private userService: UsersService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async assignOrderToDriver(orderId: string, driverId: string): Promise<Order> {
@@ -46,6 +52,8 @@ export class AdminService {
 
     if (status == DriverStatus.ACCEPTED) {
       const { firstName, lastName, email, phoneNumber, image } = driver;
+      const password = randString(8);
+
       const user = await this.userService.create({
         firstName,
         lastName,
@@ -57,8 +65,18 @@ export class AdminService {
         driverId,
         role: Role.DRIVER,
         city: '',
+        password,
       });
       driver.userId = user._id;
+
+      const driverApprovedEvent = new DriverApprovedEvent();
+      driverApprovedEvent.driver = await driver;
+      driverApprovedEvent.password = password;
+      this.eventEmitter.emit(DRIVER_APPROVED, driverApprovedEvent);
+    } else {
+      const driverDeclinedEvent = new DriverDeclinedEvent();
+      driverDeclinedEvent.driver = await driver;
+      this.eventEmitter.emit(DRIVER_DECLINED, driverDeclinedEvent);
     }
 
     return driver.save();

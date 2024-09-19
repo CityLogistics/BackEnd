@@ -12,6 +12,7 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { randString } from 'src/common/utils';
 
 @Controller('users')
 export class UsersController {
@@ -19,7 +20,10 @@ export class UsersController {
 
   @Post()
   createuser(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.userService.create(createUserDto);
+    return this.userService.create({
+      ...createUserDto,
+      password: randString(8),
+    });
   }
 
   @ApiBearerAuth()

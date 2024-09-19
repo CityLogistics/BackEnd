@@ -11,6 +11,8 @@ import { PaymentService } from 'src/payment/payment.service';
 import { Transaction } from 'src/transactions/entities/transaction.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Role } from 'src/common/types';
+import { OrderCreatedEvent } from './events/order-created.event';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class OrdersService {
@@ -19,6 +21,7 @@ export class OrdersService {
     @InjectModel(Transaction.name) private transactionModel: Model<Transaction>,
     private mapService: MapService,
     private paymentService: PaymentService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async create(
@@ -56,6 +59,13 @@ export class OrdersService {
       createdOrder.id,
     );
     const order = await createdOrder.save();
+
+    const orderCreatedEvent = new OrderCreatedEvent();
+    orderCreatedEvent.order = await order;
+    orderCreatedEvent.paymentUrl = paymentUrl;
+
+    this.eventEmitter.emit('order.created', orderCreatedEvent);
+
     return {
       order,
       paymentUrl,

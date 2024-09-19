@@ -38,6 +38,7 @@ async function bootstrap() {
 
       'https://admin.mycitylogistics.com',
       'http://admin.mycitylogistics.com',
+      'http://localhost:5173',
     ],
     methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS,PATCH',
     credentials: true,

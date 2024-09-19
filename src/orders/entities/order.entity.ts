@@ -119,6 +119,9 @@ export class Order {
   @Prop()
   distance: number;
 
+  @Prop({ default: new Date() })
+  orderNo: number;
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Driver' })
   driver: string;
 

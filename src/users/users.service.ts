@@ -5,17 +5,26 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Role } from 'src/common/types';
+import { ADMIN_CREATED } from 'src/common/jobs';
+import { UserCreatedEvent } from './events/user-created.event';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>,
+    private eventEmitter: EventEmitter2,
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const password = 'password';
+    const { password, role, ...others } = createUserDto;
+
     try {
       const hashedPassword = bcrypt.hashSync(password, 10);
       const createdUser = new this.userModel({
-        ...createUserDto,
+        ...others,
+        role,
         password: hashedPassword,
       });
 
@@ -23,6 +32,14 @@ export class UsersService {
       const { password: savedPassword, ...createdUserData } = (
         await createdUser.save()
       ).toObject();
+
+      if (role == Role.ADMIN || role == Role.SUPER_ADMIN) {
+        const adminCreatedEvent = new UserCreatedEvent();
+        adminCreatedEvent.user = await createdUser;
+        adminCreatedEvent.password = password;
+        this.eventEmitter.emit(ADMIN_CREATED, adminCreatedEvent);
+      }
+
       return { ...createdUserData, password: '' };
     } catch (error) {
       throw new BadRequestException(

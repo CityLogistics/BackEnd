@@ -9,6 +9,8 @@ import {
   Transaction,
   TransactionSchema,
 } from 'src/transactions/entities/transaction.entity';
+import { OrderListener } from './listeners/order.listener';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
@@ -18,9 +20,10 @@ import {
       { name: Order.name, schema: OrderSchema },
       { name: Transaction.name, schema: TransactionSchema },
     ]),
+    EmailModule,
   ],
   controllers: [OrdersController],
-  providers: [OrdersService],
+  providers: [OrdersService, OrderListener],
   exports: [OrdersService],
 })
 export class OrdersModule {}

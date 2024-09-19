@@ -3,7 +3,7 @@ import { DriversService } from './drivers.service';
 import { DriversController } from './drivers.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Driver, DriverSchema } from './entities/driver.entity';
-import { DriverCreatedListener } from './listeners/driver-created.listener';
+import { DriverListener } from './listeners/driver.listener';
 import { EmailModule } from 'src/email/email.module';
 import { Order, OrderSchema } from 'src/orders/entities/order.entity';
 
@@ -16,6 +16,6 @@ import { Order, OrderSchema } from 'src/orders/entities/order.entity';
     EmailModule,
   ],
   controllers: [DriversController],
-  providers: [DriversService, DriverCreatedListener],
+  providers: [DriversService, DriverListener],
 })
 export class DriversModule {}

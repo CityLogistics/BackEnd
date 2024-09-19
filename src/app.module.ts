@@ -15,6 +15,8 @@ import { BullModule } from '@nestjs/bullmq';
 import { EmailModule } from './email/email.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -39,6 +41,13 @@ import { MailerModule } from '@nestjs-modules/mailer';
           auth: {
             user: configService.get('SMTP_USER'),
             pass: configService.get('SMTP_PASS'),
+          },
+        },
+        template: {
+          dir: join(process.cwd(), 'src', 'email', 'templates'),
+          adapter: new EjsAdapter(),
+          options: {
+            strict: false,
           },
         },
       }),

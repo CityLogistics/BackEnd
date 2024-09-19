@@ -25,9 +25,9 @@ export class CreateUserDto {
   @IsString()
   lastName: string;
 
-  // @IsNotEmpty()
-  // @IsString()
-  // password: string;
+  @ValidateIf((o) => o.role == Role.DRIVER)
+  @IsString()
+  password: string;
 
   @IsNotEmpty()
   @IsEmail()
