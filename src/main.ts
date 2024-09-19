@@ -29,16 +29,12 @@ async function bootstrap() {
     origin: [
       'https://mycitylogistics.ca',
       'http://mycitylogistics.ca',
-
       'https://mycitylogistics.com',
       'http://mycitylogistics.com',
-
       'https://admin.mycitylogistics.ca',
       'http://admin.mycitylogistics.ca',
-
       'https://admin.mycitylogistics.com',
       'http://admin.mycitylogistics.com',
-
       'http://127.0.0.1:5173',
       'http://localhost:5173',
       'http://10.0.2.2:5173/',
@@ -46,7 +42,7 @@ async function bootstrap() {
       'http://10.0.2.2',
     ],
     methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS,PATCH',
-    credentials: false,
+    credentials: true,
   });
   await app.listen(3000);
 }
