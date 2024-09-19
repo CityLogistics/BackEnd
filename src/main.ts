@@ -26,23 +26,20 @@ async function bootstrap() {
     }),
   );
   app.enableCors({
-    origin:
-      process.env.NODE_ENV !== 'production'
-        ? [
-            'https://mycitylogistics.ca',
-            'http://mycitylogistics.ca',
+    origin: [
+      'https://mycitylogistics.ca',
+      'http://mycitylogistics.ca',
 
-            'https://mycitylogistics.com',
-            'http://mycitylogistics.com',
+      'https://mycitylogistics.com',
+      'http://mycitylogistics.com',
 
-            'https://admin.mycitylogistics.ca',
-            'http://admin.mycitylogistics.ca',
+      'https://admin.mycitylogistics.ca',
+      'http://admin.mycitylogistics.ca',
 
-            'https://admin.mycitylogistics.com',
-            'http://admin.mycitylogistics.com',
-            'http://localhost:5173',
-          ]
-        : ['http://localhost:5173'],
+      'https://admin.mycitylogistics.com',
+      'http://admin.mycitylogistics.com',
+      'http://localhost:5173',
+    ],
     methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS,PATCH',
     credentials: true,
   });

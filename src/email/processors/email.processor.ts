@@ -29,6 +29,7 @@ export class EmailConsumer extends WorkerHost {
   }
 
   async process(job: Job<any, any, string>): Promise<any> {
+    console.info({ job });
     try {
       switch (job.name) {
         case DRIVER_CREATED: {

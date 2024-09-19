@@ -22,7 +22,7 @@ import { join } from 'path';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV !== 'production' ? 'local.env' : '.env',
+      envFilePath: 'local.env',
     }),
     BullModule.forRootAsync({
       useFactory: async (configService: ConfigService) => ({
