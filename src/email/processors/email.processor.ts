@@ -34,6 +34,7 @@ export class EmailConsumer extends WorkerHost {
       switch (job.name) {
         case DRIVER_CREATED: {
           const { email, name } = job.data ?? {};
+          console.info({ email, name });
 
           this.emailService.sendEmail({
             to: email,
