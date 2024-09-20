@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ApiProperty } from '@nestjs/swagger';
 import mongoose from 'mongoose';
 
 export enum DriverStatus {
@@ -35,55 +34,42 @@ export enum AvailabiltyTime {
 
 @Schema({ timestamps: true })
 export class Driver {
-  @ApiProperty()
-  @Prop({ required: true })
+  @Prop()
   firstName: string;
 
-  @ApiProperty()
-  @Prop({ required: true })
+  @Prop()
   lastName: string;
 
-  @ApiProperty()
-  @Prop({ required: true })
+  @Prop({ unique: true })
   email: string;
 
-  @ApiProperty()
-  @Prop({ required: true })
+  @Prop()
   phoneNumber: string;
 
-  @ApiProperty()
-  @Prop({ required: true })
+  @Prop()
   image: string;
 
-  @ApiProperty()
-  @Prop({ required: true })
+  @Prop()
   ownVehicle: boolean;
 
-  @ApiProperty()
   @Prop()
   vehicleType: VehicleType;
 
-  @ApiProperty()
-  @Prop({ required: true })
+  @Prop()
   hasValidLicense: boolean;
 
-  @ApiProperty()
-  @Prop({ required: true })
+  @Prop()
   hasValidVehicleInsurance: boolean;
 
-  @ApiProperty()
   @Prop({ default: DriverStatus.PENDING })
   status: DriverStatus;
 
-  @ApiProperty()
   @Prop()
   availabiltyDays: AvailabiltyDay[];
 
-  @ApiProperty()
   @Prop()
   availabiltyTime: AvailabiltyTime[];
 
-  @ApiProperty()
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }] })
   orders: string[];
 

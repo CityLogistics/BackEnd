@@ -6,12 +6,14 @@ import { Driver, DriverSchema } from './entities/driver.entity';
 import { DriverListener } from './listeners/driver.listener';
 import { EmailModule } from 'src/email/email.module';
 import { Order, OrderSchema } from 'src/orders/entities/order.entity';
+import { User, UserSchema } from 'src/users/entities/user.entity';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Driver.name, schema: DriverSchema },
       { name: Order.name, schema: OrderSchema },
+      { name: User.name, schema: UserSchema },
     ]),
     EmailModule,
   ],

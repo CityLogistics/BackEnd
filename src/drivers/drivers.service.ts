@@ -21,26 +21,41 @@ import {
 import { OrderRejectedDriverEvent } from 'src/orders/events/order-rejected-driver.event';
 import { OrderAcceptedDriverEvent } from 'src/orders/events/order-accepted-driver.event';
 import { OrderDeliveredEvent } from 'src/orders/events/order-delivered';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class DriversService {
   constructor(
     @InjectModel(Driver.name) private driverModel: Model<Driver>,
     @InjectModel(Order.name) private orderModel: Model<Order>,
+    @InjectModel(User.name) private userModel: Model<User>,
     private eventEmitter: EventEmitter2,
   ) {}
 
   async create(createDriverDto: CreateDriverDto): Promise<Driver> {
-    const createdDriver = (
-      await this.driverModel.create(createDriverDto)
-    ).save();
+    // const createdDriver = (
+    //   await this.driverModel.create(createDriverDto)
+    // ).save();
+
+    const driverExists = await this.driverModel.findOne({
+      email: createDriverDto.email,
+    });
+
+    const userExists = await this.userModel.findOne({
+      email: createDriverDto.email,
+    });
+
+    if (userExists || driverExists)
+      throw new BadRequestException('User with email already exists');
+
+    const createdDriver = new this.driverModel(createDriverDto);
 
     const driverCreatedEvent = new DriverCreatedEvent();
-    driverCreatedEvent.driver = await createdDriver;
+    driverCreatedEvent.driver = createdDriver;
 
     this.eventEmitter.emit('driver.created', driverCreatedEvent);
 
-    return createdDriver;
+    return createdDriver.save();
   }
 
   async findAll(getDriverDto: GetDriverDto): Promise<{

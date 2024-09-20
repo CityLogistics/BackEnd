@@ -1,8 +1,14 @@
 import {
   Body,
   Controller,
+  Delete,
+  Get,
+  Param,
+  ParseArrayPipe,
+  ParseIntPipe,
   Patch,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -11,11 +17,16 @@ import { User } from './entities/user.entity';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { randString } from 'src/common/utils';
 import { Roles } from 'src/auth/role.decorator';
 import { Role } from 'src/common/types';
+import { RolesGuard } from 'src/auth/roles.guard';
 
+@ApiTags('users')
+@ApiBearerAuth()
+@UseGuards(RolesGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private userService: UsersService) {}
@@ -29,8 +40,25 @@ export class UsersController {
     });
   }
 
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @Get()
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+  @ApiQuery({
+    name: 'roles',
+    type: 'array',
+    required: false,
+  })
+  getUsers(
+    @Query(
+      'roles',
+      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
+    )
+    roles: string[],
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ): Promise<any> {
+    return this.userService.findAll(roles, page, limit);
+  }
+
   @Patch()
   // @Roles(Role.SUPER_ADMIN, Role.ADMIN)
   updateuser(
@@ -38,5 +66,11 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<User> {
     return this.userService.update(req.user.id, updateUserDto);
+  }
+
+  @Delete(':id')
+  @Roles(Role.SUPER_ADMIN)
+  deleteUser(@Param('id') id: string): Promise<boolean> {
+    return this.userService.delete(id);
   }
 }

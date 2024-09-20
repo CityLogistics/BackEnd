@@ -42,9 +42,10 @@ export class UsersService {
 
       return { ...createdUserData, password: '' };
     } catch (error) {
-      throw new BadRequestException(
-        error.message ?? 'An error occured, please contact support',
-      );
+      if (error.code == 11000)
+        throw new BadRequestException('User with email already exists');
+
+      throw new BadRequestException('An error occured, please contact support');
     }
   }
 
@@ -68,6 +69,42 @@ export class UsersService {
     return (await this.userModel.findOne({ email }).exec())?.toObject();
   }
 
+  async findAll(
+    roles: string[],
+    page: number,
+    limit: number,
+  ): Promise<{
+    count: number;
+    data: User[];
+  }> {
+    let query: any = {
+      role: { $ne: 'DRIVER' },
+    };
+
+    if (roles) {
+      query = {
+        ...query,
+        role: {
+          $in: roles,
+          // $in: dates,
+        },
+      };
+    }
+
+    const count = await this.userModel.countDocuments(query, { hint: '_id_' });
+
+    const data = await this.userModel
+      .find(query)
+      .skip(limit * page)
+      .limit(limit)
+      .exec();
+
+    return {
+      count,
+      data,
+    };
+  }
+
   async updatePassword(
     id: string,
     password: string,
@@ -89,5 +126,15 @@ export class UsersService {
         error.message ?? 'An error occured, please contact support',
       );
     }
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const user = await this.userModel.findById(id);
+
+    if (!user) throw new BadRequestException('User not found');
+    if (user.role == Role.SUPER_ADMIN)
+      throw new BadRequestException('Super Admin cannot be deleted');
+    user.deleteOne().exec();
+    return true;
   }
 }
