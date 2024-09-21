@@ -27,8 +27,7 @@ async function bootstrap() {
   );
   app.enableCors({
     origin: [
-      'https://www.mycitylogistics.ca/',
-      'https://mycitylogistics.ca/',
+      'https://www.mycitylogistics.ca',
       'https://mycitylogistics.ca',
       'http://mycitylogistics.ca',
       'https://mycitylogistics.com',
