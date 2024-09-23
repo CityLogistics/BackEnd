@@ -2,7 +2,7 @@ import { VehicleType } from 'src/drivers/entities/driver.entity';
 import { Province } from 'src/orders/entities/order.entity';
 
 export const regionalPrices = {
-  [Province.ALBERTA]: 1600,
+  [Province.ALBERTA]: 1500,
   [Province.BRITISH_COLUMBIA]: 1500,
   [Province.MANITOBA]: 1500,
   [Province.NEWFOUNDLAND_AND_LABRADOR]: 1500,
