@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
@@ -103,7 +103,7 @@ export class PaymentService extends Stripe {
         await order.save();
       }
     } catch (error) {
-      throw new BadRequestException();
+      // throw new BadRequestException();
       // return false;
     }
     // return true;
@@ -125,7 +125,7 @@ export class PaymentService extends Stripe {
         });
       }
     } catch (error) {
-      throw new BadRequestException();
+      // throw new BadRequestException();
     }
   }
 
