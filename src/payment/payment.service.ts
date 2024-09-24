@@ -48,8 +48,8 @@ export class PaymentService extends Stripe {
         },
       ],
       mode: 'payment',
-      success_url: `https://mycitylogistics.ca/payment-success`,
-      cancel_url: `https://mycitylogistics.ca/payment-failed`,
+      success_url: `https://www.mycitylogistics.ca/payment-success`,
+      cancel_url: `https://www.mycitylogistics.ca/payment-failed`,
       metadata: {
         orderId,
       },
@@ -67,7 +67,7 @@ export class PaymentService extends Stripe {
     try {
       const order = await this.orderModel.findById(orderId);
       if (order.totalPrice == price) {
-        this.transactionService.create({
+        await this.transactionService.create({
           amount: order.totalPrice,
           orderId: order.id,
           refrence,
@@ -89,7 +89,7 @@ export class PaymentService extends Stripe {
 
         await order.save();
       } else {
-        this.transactionService.create({
+        await this.transactionService.create({
           amount: price,
           orderId: order.id,
           refrence,
@@ -104,7 +104,9 @@ export class PaymentService extends Stripe {
       }
     } catch (error) {
       throw new BadRequestException();
+      // return false;
     }
+    // return true;
   }
 
   async updatePaymentFailed(orderId: string, price: number, refrence: string) {
