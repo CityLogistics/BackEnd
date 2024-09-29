@@ -10,16 +10,23 @@ import { jwtConstants } from './constants';
 import { JwtStrategy } from './jwt.strategy';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/users/entities/user.entity';
+import { Token, TokenSchema } from './entities/token.entity';
+import { AuthListener } from './listeners/auth.listener';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
     PassportModule,
     UsersModule,
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Token.name, schema: TokenSchema },
+    ]),
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: { expiresIn: 600000 },
     }),
+    EmailModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -27,6 +34,7 @@ import { User, UserSchema } from 'src/users/entities/user.entity';
     UsersService,
     LocalStrategy,
     JwtStrategy,
+    AuthListener,
     // ...usersProvider,
   ],
 })

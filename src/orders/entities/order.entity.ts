@@ -129,4 +129,8 @@ export class Order {
   tranasctionReference?: string;
 }
 
-export const OrderSchema = SchemaFactory.createForClass(Order);
+const OrderSchemaT = SchemaFactory.createForClass(Order);
+
+OrderSchemaT.index({ '$**': 'text' });
+
+export const OrderSchema = OrderSchemaT;

@@ -52,6 +52,11 @@ export class OrdersController {
     type: 'array',
     required: false,
   })
+  @ApiQuery({
+    name: 'search',
+    type: 'string',
+    required: false,
+  })
   @Get()
   async findAll(
     @Request() req,
@@ -72,6 +77,7 @@ export class OrdersController {
     orderStatus: string[],
     @Query('page', ParseIntPipe) page: number,
     @Query('limit', ParseIntPipe) limit: number,
+    @Query('search') search: string,
   ) {
     return await this.ordersService.findAll(
       req.user,
@@ -81,6 +87,7 @@ export class OrdersController {
       orderStatus,
       page,
       limit,
+      search,
     );
   }
 

@@ -26,7 +26,7 @@ export class User {
   phoneNumber: string;
 
   @Prop()
-  dateOfBirth: string;
+  dateOfBirth?: string;
 
   @Prop()
   gender: string;

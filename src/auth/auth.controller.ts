@@ -33,4 +33,10 @@ export class AuthController {
       changePasswordDto.newPassword,
     );
   }
+
+  @ApiBody({ type: Object })
+  @Post('/forgot-password')
+  async forgotPassword(@Body('email') email: string) {
+    return this.authService.forgotPassword(email);
+  }
 }

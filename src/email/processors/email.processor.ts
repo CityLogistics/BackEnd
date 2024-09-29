@@ -15,6 +15,7 @@ import {
   ORDER_REJECTED_ADMIN,
   ORDER_REJECTED_DRIVER,
   ORDER_COMPLETED,
+  RESET_PASSWORD_INITIATED,
 } from 'src/common/jobs';
 
 @Processor('email')
@@ -214,6 +215,22 @@ export class EmailConsumer extends WorkerHost {
               name,
               password,
               email,
+            },
+          });
+          return {};
+        }
+
+        case RESET_PASSWORD_INITIATED: {
+          const { token, email, name } = job.data ?? {};
+
+          this.emailService.sendEmail({
+            to: email,
+            from: this.infoEmailFrom,
+            subject: 'Reset Your Password',
+            template: './admin-created',
+            context: {
+              resetLink: token,
+              name,
             },
           });
           return {};

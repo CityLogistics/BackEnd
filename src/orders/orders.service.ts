@@ -85,6 +85,7 @@ export class OrdersService {
     orderStatus: string[],
     page: number,
     limit: number,
+    search: string,
   ): Promise<{
     count: number;
     data: Order[];
@@ -125,7 +126,14 @@ export class OrdersService {
       query = { ...query, status: { $in: orderStatus } };
     }
 
-    const count = await this.orderModel.countDocuments(query, { hint: '_id_' });
+    if (search) {
+      query = {
+        ...query,
+        $text: { $search: search },
+      };
+    }
+
+    const count = await this.orderModel.countDocuments(query);
 
     const data = await this.orderModel
       .find(query)
