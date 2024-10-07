@@ -17,6 +17,7 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import { join } from 'path';
+import { CitiesModule } from './cities/cities.module';
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { join } from 'path';
     PaymentModule,
     EmailModule,
     TransactionsModule,
+    CitiesModule,
   ],
 })
 export class AppModule {}
