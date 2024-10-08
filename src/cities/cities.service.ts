@@ -4,21 +4,49 @@ import { UpdateCityDto } from './dto/update-city.dto';
 import { City } from './entities/city.entity';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { Province } from 'src/orders/entities/order.entity';
 
 @Injectable()
 export class CitiesService {
   constructor(@InjectModel(City.name) private cityModel: Model<City>) {}
 
-  create(createCityDto: CreateCityDto) {
+  async create(createCityDto: CreateCityDto): Promise<City> {
     const createdCity = new this.cityModel({
       ...createCityDto,
     });
 
-    return 'This action adds a new city';
+    return await createdCity.save();
   }
 
-  findAll() {
-    return `This action returns all cities`;
+  async findAll(
+    page: number,
+    limit: number,
+    province: Province,
+  ): Promise<{
+    count: number;
+    data: City[];
+  }> {
+    let query: any = {};
+
+    if (province) {
+      query = { ...query, province };
+    }
+
+    const count = await this.cityModel
+      .countDocuments(query)
+      .hint({ province: 1 });
+
+    const data = await this.cityModel
+      .find(query)
+      .hint({ province: 1 })
+      .skip(limit * page)
+      .limit(limit)
+      .exec();
+
+    return {
+      count,
+      data,
+    };
   }
 
   findOne(id: number) {
