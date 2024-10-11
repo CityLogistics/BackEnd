@@ -1,14 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCityDto } from './dto/create-city.dto';
 import { UpdateCityDto } from './dto/update-city.dto';
 import { City } from './entities/city.entity';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Province } from 'src/orders/entities/order.entity';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class CitiesService {
-  constructor(@InjectModel(City.name) private cityModel: Model<City>) {}
+  constructor(
+    @InjectModel(City.name) private cityModel: Model<City>,
+    @Inject(forwardRef(() => UsersService))
+    private userService: UsersService,
+  ) {}
 
   async create(createCityDto: CreateCityDto): Promise<City> {
     const createdCity = new this.cityModel({
@@ -49,15 +59,67 @@ export class CitiesService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} city`;
+  async findOne(id: string) {
+    const city = await this.cityModel.findById(id).exec();
+    if (!city) {
+      throw new NotFoundException(`City with ID ${id} not found`);
+    }
+    return city;
   }
 
-  update(id: number, updateCityDto: UpdateCityDto) {
-    return `This action updates a #${id} city`;
+  async update(id: string, updateCityDto: UpdateCityDto) {
+    const updatedCity = await this.cityModel
+      .findByIdAndUpdate(id, updateCityDto, { new: true })
+      .exec();
+
+    if (!updatedCity) {
+      throw new NotFoundException(`City with ID ${id} not found`);
+    }
+
+    return updatedCity;
+  }
+
+  async updateStatus(id: string, status: boolean) {
+    const updatedCity = await this.cityModel
+      .findByIdAndUpdate(id, { status }, { new: true })
+      .exec();
+
+    if (!updatedCity) {
+      throw new NotFoundException(`City with ID ${id} not found`);
+    }
+
+    return updatedCity;
+  }
+
+  async addAdminToCity(id: string, adminId: string) {
+    await this.userService.findOneById(adminId);
+
+    const updatedCity = await this.cityModel
+      .findByIdAndUpdate(id, { $push: { admins: adminId } }, { new: true })
+      .exec();
+
+    if (!updatedCity) {
+      throw new NotFoundException(`City with ID ${id} not found`);
+    }
+
+    return updatedCity;
+  }
+
+  async removeAdminFromCity(id: string, adminId: string) {
+    await this.userService.findOneById(adminId);
+
+    const updatedCity = await this.cityModel
+      .findByIdAndUpdate(id, { $pull: { admins: adminId } }, { new: true })
+      .exec();
+
+    if (!updatedCity) {
+      throw new NotFoundException(`City with ID ${id} not found`);
+    }
+
+    return updatedCity;
   }
 
   remove(id: number) {
-    return `This action removes a #${id} city`;
+    return this.cityModel.findByIdAndDelete(id).exec();
   }
 }

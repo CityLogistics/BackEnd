@@ -17,7 +17,7 @@ export class City {
   province: Province;
 
   @Prop({ default: true })
-  active: boolean;
+  status: boolean;
 }
 
 export const CitySchema = SchemaFactory.createForClass(City);

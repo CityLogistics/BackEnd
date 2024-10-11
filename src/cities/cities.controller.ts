@@ -21,6 +21,7 @@ import { Roles } from 'src/auth/role.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Role } from 'src/common/types';
 import { Province } from 'src/orders/entities/order.entity';
+import { ObjectIdPipe } from 'src/common/pipes/mongoose_object_id.pipe';
 
 @ApiTags('cities')
 @ApiBearerAuth()
@@ -56,14 +57,17 @@ export class CitiesController {
 
   @Get(':id')
   @Roles(Role.SUPER_ADMIN)
-  findOne(@Param('id') id: string) {
-    return this.citiesService.findOne(+id);
+  findOne(@Param('id', new ObjectIdPipe('id')) id: string) {
+    return this.citiesService.findOne(id);
   }
 
   @Patch(':id')
   @Roles(Role.SUPER_ADMIN)
-  update(@Param('id') id: string, @Body() updateCityDto: UpdateCityDto) {
-    return this.citiesService.update(+id, updateCityDto);
+  update(
+    @Param('id', new ObjectIdPipe('id')) id: string,
+    @Body() updateCityDto: UpdateCityDto,
+  ) {
+    return this.citiesService.update(id, updateCityDto);
   }
 
   @Delete(':id')

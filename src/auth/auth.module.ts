@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { LocalStrategy } from './local.strategy';
@@ -13,6 +13,7 @@ import { User, UserSchema } from 'src/users/entities/user.entity';
 import { Token, TokenSchema } from './entities/token.entity';
 import { AuthListener } from './listeners/auth.listener';
 import { EmailModule } from 'src/email/email.module';
+import { CitiesModule } from 'src/cities/cities.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { EmailModule } from 'src/email/email.module';
       signOptions: { expiresIn: 600000 },
     }),
     EmailModule,
+    forwardRef(() => CitiesModule),
   ],
   controllers: [AuthController],
   providers: [

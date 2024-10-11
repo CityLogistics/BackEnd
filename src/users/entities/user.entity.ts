@@ -40,8 +40,8 @@ export class User {
   @Prop()
   province?: Province;
 
-  @Prop()
-  city: string;
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'City' }] })
+  cities: string[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

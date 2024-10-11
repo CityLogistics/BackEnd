@@ -10,7 +10,7 @@ async function bootstrap() {
   });
   const config = new DocumentBuilder()
     .setTitle('City logistics')
-    .setDescription('City logistics API documentaion')
+    .setDescription('City logistics API documentation')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
@@ -19,7 +19,8 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
-
+      whitelist: true,
+      forbidNonWhitelisted: true,
       transformOptions: {
         enableImplicitConversion: true, // <- This line here
       },

@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { Model } from 'mongoose';
 import { CreateUserDto } from './dtos/create-user.dto';
@@ -9,18 +15,23 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Role } from 'src/common/types';
 import { ADMIN_CREATED } from 'src/common/jobs';
 import { UserCreatedEvent } from './events/user-created.event';
+import { CitiesService } from 'src/cities/cities.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     private eventEmitter: EventEmitter2,
+    @Inject(forwardRef(() => CitiesService))
+    private citiesService: CitiesService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const { password, role, ...others } = createUserDto;
+    const { password, role, cities, ...others } = createUserDto;
 
     try {
+      await Promise.all(cities.map((city) => this.citiesService.findOne(city)));
+
       const hashedPassword = bcrypt.hashSync(password, 10);
       const createdUser = new this.userModel({
         ...others,
@@ -32,6 +43,12 @@ export class UsersService {
       const { password: savedPassword, ...createdUserData } = (
         await createdUser.save()
       ).toObject();
+
+      await Promise.all(
+        cities.map((city) =>
+          this.citiesService.addAdminToCity(city, createdUser.id),
+        ),
+      );
 
       if (role == Role.ADMIN || role == Role.SUPER_ADMIN) {
         const adminCreatedEvent = new UserCreatedEvent();
@@ -51,9 +68,6 @@ export class UsersService {
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { email, ...others } = updateUserDto;
-
-    if (email) throw new BadRequestException('Email cannot be changed');
 
     const createdUser = await this.userModel.findByIdAndUpdate(
       id,
@@ -65,8 +79,33 @@ export class UsersService {
     return createdUser;
   }
 
+  async updateAdminCities(adminId: string, cities: string[]): Promise<User> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    await Promise.all(
+      cities.map((city) => this.citiesService.addAdminToCity(city, adminId)),
+    );
+
+    const createdUser = await this.userModel.findByIdAndUpdate(
+      adminId,
+      { cities },
+      {
+        new: true,
+      },
+    );
+    return createdUser;
+  }
+
   async findOne(email: string): Promise<User | undefined> {
     return (await this.userModel.findOne({ email }).exec())?.toObject();
+  }
+
+  async findOneById(id: string): Promise<User> {
+    const user = await this.userModel.findById(id);
+
+    if (!user) throw new NotFoundException('User not found');
+
+    return user;
   }
 
   async findAll(
