@@ -28,15 +28,25 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { password, role, cities, ...others } = createUserDto;
-
+    if (role == Role.SUPER_ADMIN) {
+      const superAdmin = await this.userModel
+        .findOne({
+          role: Role.SUPER_ADMIN,
+        })
+        .exec();
+      if (superAdmin)
+        throw new BadRequestException('Super Admin already exists');
+    }
     try {
       await Promise.all(cities.map((city) => this.citiesService.findOne(city)));
 
       const hashedPassword = bcrypt.hashSync(password, 10);
+
       const createdUser = new this.userModel({
         ...others,
         role,
         password: hashedPassword,
+        cities,
       });
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

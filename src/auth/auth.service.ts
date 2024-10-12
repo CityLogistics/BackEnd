@@ -40,6 +40,7 @@ export class AuthService {
       driverId: user.driverId,
       province: user.province,
       firstName: user.firstName,
+      cities: user.cities,
     };
     return { access_token: this.jwtService.sign(payload), user };
   }

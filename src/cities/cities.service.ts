@@ -25,6 +25,9 @@ export class CitiesService {
       ...createCityDto,
     });
 
+    // add city id to orders that don't have it but belong to this city,
+    // i.e the order was created with the city before the city was added to the db
+    // TODO add city id to orders
     return await createdCity.save();
   }
 
@@ -59,10 +62,18 @@ export class CitiesService {
     };
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<City> {
     const city = await this.cityModel.findById(id).exec();
     if (!city) {
       throw new NotFoundException(`City with ID ${id} not found`);
+    }
+    return city;
+  }
+
+  async findOneByName(name: string, ignoreError = false): Promise<City | null> {
+    const city = await this.cityModel.findOne({ name }).exec();
+    if (!(city || ignoreError)) {
+      throw new NotFoundException(`City with name ${name} not found`);
     }
     return city;
   }

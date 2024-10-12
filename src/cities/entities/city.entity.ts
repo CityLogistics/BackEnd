@@ -1,11 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Schema as MSchema } from 'mongoose';
+import mongoose, { Schema as MSchema } from 'mongoose';
 import { Province } from 'src/orders/entities/order.entity';
 
 @Schema({ timestamps: true })
 export class City {
   @Prop({ unique: true })
   name: string;
+
+  _id: mongoose.Schema.Types.ObjectId;
 
   @Prop({ type: [{ type: MSchema.Types.ObjectId, ref: 'Driver' }] })
   drivers: string[];
