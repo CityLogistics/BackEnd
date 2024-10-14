@@ -9,8 +9,9 @@ import { UpdateCityDto } from './dto/update-city.dto';
 import { City } from './entities/city.entity';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { Province } from 'src/orders/entities/order.entity';
 import { UsersService } from 'src/users/users.service';
+import { GetAllCitiesDto } from './dto/get-all-cities.dto';
+import { GetCitiesByProvinceDto } from './dto/get-cities-by-province.dto';
 
 @Injectable()
 export class CitiesService {
@@ -31,14 +32,43 @@ export class CitiesService {
     return await createdCity.save();
   }
 
-  async findAll(
-    page: number,
-    limit: number,
-    province: Province,
+  async findAll(getAllCitiesDto: GetAllCitiesDto): Promise<{
+    count: number;
+    data: City[];
+  }> {
+    const { provinces, page, limit } = getAllCitiesDto;
+
+    let query: any = {};
+
+    if (provinces) {
+      query = { ...query, province: { $in: provinces } };
+    }
+
+    const count = await this.cityModel
+      .countDocuments(query)
+      .hint({ province: 1 });
+
+    const data = await this.cityModel
+      .find(query)
+      .hint({ province: 1 })
+      .skip(limit * page)
+      .limit(limit)
+      .exec();
+
+    return {
+      count,
+      data,
+    };
+  }
+
+  async findCitiesByProvince(
+    getCitiesByProvinceDto: GetCitiesByProvinceDto,
   ): Promise<{
     count: number;
     data: City[];
   }> {
+    const { page, limit, province } = getCitiesByProvinceDto;
+
     let query: any = {};
 
     if (province) {

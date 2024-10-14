@@ -16,6 +16,7 @@ import { Role } from 'src/common/types';
 import { ADMIN_CREATED } from 'src/common/jobs';
 import { UserCreatedEvent } from './events/user-created.event';
 import { CitiesService } from 'src/cities/cities.service';
+import { UpdateUserCitiesDto } from './dtos/update-user-cities.dto';
 
 @Injectable()
 export class UsersService {
@@ -28,17 +29,20 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { password, role, cities, ...others } = createUserDto;
-    if (role == Role.SUPER_ADMIN) {
-      const superAdmin = await this.userModel
-        .findOne({
-          role: Role.SUPER_ADMIN,
-        })
-        .exec();
-      if (superAdmin)
-        throw new BadRequestException('Super Admin already exists');
-    }
+    // if (role == Role.SUPER_ADMIN) {
+    //   const superAdmin = await this.userModel
+    //     .findOne({
+    //       role: Role.SUPER_ADMIN,
+    //     })
+    //     .exec();
+    //   if (superAdmin)
+    //     throw new BadRequestException('Super Admin already exists');
+    // }
     try {
-      await Promise.all(cities.map((city) => this.citiesService.findOne(city)));
+      if (role == Role.ADMIN)
+        await Promise.all(
+          cities.map((city) => this.citiesService.findOne(city)),
+        );
 
       const hashedPassword = bcrypt.hashSync(password, 10);
 
@@ -54,11 +58,12 @@ export class UsersService {
         await createdUser.save()
       ).toObject();
 
-      await Promise.all(
-        cities.map((city) =>
-          this.citiesService.addAdminToCity(city, createdUser.id),
-        ),
-      );
+      if (role == Role.ADMIN)
+        await Promise.all(
+          cities.map((city) =>
+            this.citiesService.addAdminToCity(city, createdUser.id),
+          ),
+        );
 
       if (role == Role.ADMIN || role == Role.SUPER_ADMIN) {
         const adminCreatedEvent = new UserCreatedEvent();
@@ -72,7 +77,9 @@ export class UsersService {
       if (error.code == 11000)
         throw new BadRequestException('User with email already exists');
 
-      throw new BadRequestException('An error occured, please contact support');
+      throw new BadRequestException(
+        error.message ?? 'An error occured, please contact support',
+      );
     }
   }
 
@@ -89,11 +96,16 @@ export class UsersService {
     return createdUser;
   }
 
-  async updateAdminCities(adminId: string, cities: string[]): Promise<User> {
+  async updateAdminCities(
+    adminId: string,
+    updateUserCitiesDto: UpdateUserCitiesDto,
+  ): Promise<User> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-
+    const { cities } = updateUserCitiesDto;
     await Promise.all(
-      cities.map((city) => this.citiesService.addAdminToCity(city, adminId)),
+      updateUserCitiesDto.cities.map((city) =>
+        this.citiesService.addAdminToCity(city, adminId),
+      ),
     );
 
     const createdUser = await this.userModel.findByIdAndUpdate(
