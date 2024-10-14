@@ -83,4 +83,13 @@ export class CitiesController {
   remove(@Param('id') id: string) {
     return this.citiesService.remove(+id);
   }
+
+  @Get('find-by-province-from-google')
+  @Roles(Role.SUPER_ADMIN)
+  findCitiesByProvinceFromGoogle(
+    @Query('province')
+    province: string,
+  ) {
+    return this.citiesService.findCitiesByProvinceFromGoogle(province);
+  }
 }

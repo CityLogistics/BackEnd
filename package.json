@@ -22,6 +22,7 @@
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.4.0",
     "@nestjs-modules/mailer": "^2.0.2",
+    "@nestjs/axios": "^3.0.3",
     "@nestjs/bullmq": "^10.2.1",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.3",
@@ -33,6 +34,7 @@
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.4.0",
+    "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
     "bullmq": "^5.13.0",
     "class-transformer": "^0.5.1",
