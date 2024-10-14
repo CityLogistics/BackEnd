@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { Model } from 'mongoose';
 import { CreateUserDto } from './dtos/create-user.dto';
@@ -9,29 +15,55 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Role } from 'src/common/types';
 import { ADMIN_CREATED } from 'src/common/jobs';
 import { UserCreatedEvent } from './events/user-created.event';
+import { CitiesService } from 'src/cities/cities.service';
+import { UpdateUserCitiesDto } from './dtos/update-user-cities.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     private eventEmitter: EventEmitter2,
+    @Inject(forwardRef(() => CitiesService))
+    private citiesService: CitiesService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const { password, role, ...others } = createUserDto;
-
+    const { password, role, cities, ...others } = createUserDto;
+    // if (role == Role.SUPER_ADMIN) {
+    //   const superAdmin = await this.userModel
+    //     .findOne({
+    //       role: Role.SUPER_ADMIN,
+    //     })
+    //     .exec();
+    //   if (superAdmin)
+    //     throw new BadRequestException('Super Admin already exists');
+    // }
     try {
+      if (role == Role.ADMIN)
+        await Promise.all(
+          cities.map((city) => this.citiesService.findOne(city)),
+        );
+
       const hashedPassword = bcrypt.hashSync(password, 10);
+
       const createdUser = new this.userModel({
         ...others,
         role,
         password: hashedPassword,
+        cities,
       });
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password: savedPassword, ...createdUserData } = (
         await createdUser.save()
       ).toObject();
+
+      if (role == Role.ADMIN)
+        await Promise.all(
+          cities.map((city) =>
+            this.citiesService.addAdminToCity(city, createdUser.id),
+          ),
+        );
 
       if (role == Role.ADMIN || role == Role.SUPER_ADMIN) {
         const adminCreatedEvent = new UserCreatedEvent();
@@ -45,15 +77,14 @@ export class UsersService {
       if (error.code == 11000)
         throw new BadRequestException('User with email already exists');
 
-      throw new BadRequestException('An error occured, please contact support');
+      throw new BadRequestException(
+        error.message ?? 'An error occured, please contact support',
+      );
     }
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { email, ...others } = updateUserDto;
-
-    if (email) throw new BadRequestException('Email cannot be changed');
 
     const createdUser = await this.userModel.findByIdAndUpdate(
       id,
@@ -65,8 +96,38 @@ export class UsersService {
     return createdUser;
   }
 
+  async updateAdminCities(
+    adminId: string,
+    updateUserCitiesDto: UpdateUserCitiesDto,
+  ): Promise<User> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { cities } = updateUserCitiesDto;
+    await Promise.all(
+      updateUserCitiesDto.cities.map((city) =>
+        this.citiesService.addAdminToCity(city, adminId),
+      ),
+    );
+
+    const createdUser = await this.userModel.findByIdAndUpdate(
+      adminId,
+      { cities },
+      {
+        new: true,
+      },
+    );
+    return createdUser;
+  }
+
   async findOne(email: string): Promise<User | undefined> {
     return (await this.userModel.findOne({ email }).exec())?.toObject();
+  }
+
+  async findOneById(id: string): Promise<User> {
+    const user = await this.userModel.findById(id);
+
+    if (!user) throw new NotFoundException('User not found');
+
+    return user;
   }
 
   async findAll(

@@ -75,7 +75,7 @@ export class AdminService {
         gender: Gender.NOT_SELECTED,
         driverId,
         role: Role.DRIVER,
-        city: '',
+        cities: [],
         password,
       });
       driver.userId = user._id;

@@ -1,7 +1,10 @@
 import {
+  ArrayNotEmpty,
+  IsArray,
   IsDateString,
   IsEmail,
   IsEnum,
+  IsMongoId,
   IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
@@ -61,7 +64,8 @@ export class CreateUserDto {
   province?: Province;
 
   @ValidateIf((o) => o.role == Role.ADMIN)
-  @IsNotEmpty()
-  @IsString()
-  city: string;
+  @IsArray()
+  @ArrayNotEmpty() // Ensures the array is not empty
+  @IsMongoId({ each: true })
+  cities: string[];
 }

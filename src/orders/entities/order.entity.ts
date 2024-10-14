@@ -60,6 +60,9 @@ export class Address {
   province: Province;
   @IsString()
   placeId?: string;
+  @IsNotEmpty()
+  @IsString()
+  city: string;
 }
 
 @Schema({ timestamps: true })
@@ -127,6 +130,9 @@ export class Order {
 
   @Prop()
   tranasctionReference?: string;
+
+  @Prop()
+  assignedCityId?: string;
 }
 
 const OrderSchemaT = SchemaFactory.createForClass(Order);

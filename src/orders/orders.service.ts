@@ -20,6 +20,8 @@ import {
   ORDER_REJECTED_ADMIN,
 } from 'src/common/jobs';
 import { OrderCompletedEvent } from './events/order-completed';
+import { CitiesService } from 'src/cities/cities.service';
+// import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class OrdersService {
@@ -27,6 +29,8 @@ export class OrdersService {
     @InjectModel(Order.name) private orderModel: Model<Order>,
     @InjectModel(Transaction.name) private transactionModel: Model<Transaction>,
     private mapService: MapService,
+    private citiesService: CitiesService,
+    // private usersService: UsersService,
     private paymentService: PaymentService,
     private eventEmitter: EventEmitter2,
   ) {}
@@ -38,6 +42,11 @@ export class OrdersService {
       .startOf('day')
       .toString();
     const { pickupAddress, dropOffAddress } = createOrderDto;
+
+    const assignedCity = await this.citiesService.findOneByName(
+      pickupAddress.city,
+      true,
+    );
 
     const basePrice = Math.max(
       regionalPrices[pickupAddress.province],
@@ -59,6 +68,7 @@ export class OrdersService {
       distance: Math.ceil(distance / 1000),
       basePrice,
       totalPrice,
+      assignedCityId: assignedCity?._id,
     });
     const paymentUrl = await this.paymentService.createCheckout(
       totalPrice,
@@ -98,6 +108,7 @@ export class OrdersService {
       query = {
         ...query,
         'pickupAddress.province': user.province,
+        assignedCityId: { $in: user.cities ?? [] },
       };
     }
 

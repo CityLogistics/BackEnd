@@ -22,6 +22,7 @@ import { randString } from 'src/common/utils';
 import { Roles } from 'src/auth/role.decorator';
 import { Role } from 'src/common/types';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { UpdateUserCitiesDto } from './dtos/update-user-cities.dto';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -36,7 +37,7 @@ export class UsersController {
   createuser(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.userService.create({
       ...createUserDto,
-      password: randString(8),
+      password: createUserDto.password ?? randString(8),
     });
   }
 
@@ -66,6 +67,15 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<User> {
     return this.userService.update(req.user.id, updateUserDto);
+  }
+
+  @Patch(':id/update-cities')
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+  updateAdminCities(
+    @Param('id') id: string,
+    @Body() updateUserCitiesDto: UpdateUserCitiesDto,
+  ): Promise<User> {
+    return this.userService.updateAdminCities(id, updateUserCitiesDto);
   }
 
   @Delete(':id')

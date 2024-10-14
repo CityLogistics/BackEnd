@@ -11,6 +11,7 @@ import {
 } from 'src/transactions/entities/transaction.entity';
 import { OrderListener } from './listeners/order.listener';
 import { EmailModule } from 'src/email/email.module';
+import { CitiesModule } from 'src/cities/cities.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { EmailModule } from 'src/email/email.module';
       { name: Transaction.name, schema: TransactionSchema },
     ]),
     EmailModule,
+    CitiesModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService, OrderListener],

@@ -21,6 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       driverId: payload.driverId,
       province: payload.province,
       firstName: payload.firstName,
+      cities: payload.cities,
     };
   }
 }

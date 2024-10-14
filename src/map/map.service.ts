@@ -78,7 +78,7 @@ export class MapService extends Client {
       const data = distanceRes.data.rows[0].elements[0].distance.value;
       return data;
     } catch (error) {
-      throw new BadRequestException('distace location not found');
+      throw new BadRequestException('distance for location not found');
     }
   }
 }
