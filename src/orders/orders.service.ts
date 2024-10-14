@@ -1,9 +1,14 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Order, OrderStatus } from './entities/order.entity';
-import { Model } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import * as moment from 'moment';
 import { pricePerKm, regionalPrices } from 'src/common/prices';
 import { MapService } from 'src/map/map.service';
@@ -29,6 +34,7 @@ export class OrdersService {
     @InjectModel(Order.name) private orderModel: Model<Order>,
     @InjectModel(Transaction.name) private transactionModel: Model<Transaction>,
     private mapService: MapService,
+    @Inject(forwardRef(() => CitiesService))
     private citiesService: CitiesService,
     // private usersService: UsersService,
     private paymentService: PaymentService,
@@ -318,5 +324,19 @@ export class OrdersService {
     const order = await this.orderModel.findById(id).exec();
     order.deleteOne();
     return order;
+  }
+
+  async addCityIdToUnAssingedOrders(city: string, assignedCityId: ObjectId) {
+    const orders = await this.orderModel
+      .updateMany(
+        { 'pickupAddress.city': city },
+        { assignedCityId },
+        { new: true },
+      )
+      .exec();
+
+    //TODO send emails
+
+    return orders;
   }
 }

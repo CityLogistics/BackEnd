@@ -15,6 +15,7 @@ import { GetCitiesByProvinceDto } from './dto/get-cities-by-province.dto';
 import { firstValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
+import { OrdersService } from 'src/orders/orders.service';
 
 @Injectable()
 export class CitiesService {
@@ -22,6 +23,8 @@ export class CitiesService {
     @InjectModel(City.name) private cityModel: Model<City>,
     @Inject(forwardRef(() => UsersService))
     private userService: UsersService,
+    @Inject(forwardRef(() => OrdersService))
+    private orderService: OrdersService,
     private readonly httpService: HttpService,
     private config: ConfigService,
   ) {}
@@ -36,6 +39,13 @@ export class CitiesService {
     // add city id to orders that don't have it but belong to this city,
     // i.e the order was created with the city before the city was added to the db
     // TODO add city id to orders
+    // createdCity._id
+
+    await this.orderService.addCityIdToUnAssingedOrders(
+      createdCity.name,
+      createdCity._id,
+    );
+
     return await createdCity.save();
   }
 
