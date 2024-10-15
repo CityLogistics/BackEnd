@@ -21,7 +21,7 @@ import { Role } from 'src/common/types';
 import { ObjectIdPipe } from 'src/common/pipes/mongoose_object_id.pipe';
 import { GetAllCitiesDto } from './dto/get-all-cities.dto';
 import { GetCitiesByProvinceDto } from './dto/get-cities-by-province.dto';
-import { Public } from 'src/auth/constants';
+// import { Public } from 'src/auth/constants';
 
 @ApiTags('cities')
 @ApiBearerAuth()
