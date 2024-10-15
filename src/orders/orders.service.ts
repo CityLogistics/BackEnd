@@ -183,6 +183,7 @@ export class OrdersService {
       query = {
         ...query,
         'pickupAddress.province': user.province,
+        assignedCityId: { $in: user.cities ?? [] },
       };
     }
 
@@ -225,6 +226,7 @@ export class OrdersService {
       query = {
         ...query,
         'pickupAddress.province': user.province,
+        assignedCityId: { $in: user.cities ?? [] },
       };
     }
 
