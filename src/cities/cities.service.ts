@@ -16,6 +16,7 @@ import { firstValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { OrdersService } from 'src/orders/orders.service';
+import { regions } from 'src/common/utils';
 
 @Injectable()
 export class CitiesService {
@@ -181,11 +182,24 @@ export class CitiesService {
     return this.cityModel.findByIdAndDelete(id).exec();
   }
 
+  async findAllCitiesFromGoogle() {
+    const res = {};
+
+    await Promise.all(
+      regions.map(
+        async (r) =>
+          (res[r.value] = await this.findCitiesByProvinceFromGoogle(r.value)),
+      ),
+    );
+
+    return res;
+  }
+
   async findCitiesByProvinceFromGoogle(province: string) {
     const query = `cities in ${province}`;
     let url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${this.accessKey}`;
 
-    const allCities: string[] = [];
+    const allCities: any[] = [];
 
     try {
       let moreResults = true;
@@ -195,8 +209,10 @@ export class CitiesService {
         const data = response.data;
 
         if (data.status === 'OK') {
-          const cities = data.results.map((place) => place.name);
-          allCities.push(...cities);
+          for (let index = 0; index < data.results.length; index++) {
+            const element = data.results[index];
+            if (element.types?.[0] == 'locality') allCities.push(element.name);
+          }
 
           // Check for next page token
           if (data.next_page_token) {

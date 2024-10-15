@@ -21,6 +21,7 @@ import { Role } from 'src/common/types';
 import { ObjectIdPipe } from 'src/common/pipes/mongoose_object_id.pipe';
 import { GetAllCitiesDto } from './dto/get-all-cities.dto';
 import { GetCitiesByProvinceDto } from './dto/get-cities-by-province.dto';
+import { Public } from 'src/auth/constants';
 
 @ApiTags('cities')
 @ApiBearerAuth()
@@ -54,6 +55,21 @@ export class CitiesController {
     return this.citiesService.findCitiesByProvince(getCitiesByProvinceDto);
   }
 
+  @Get('find-by-province-from-google')
+  @Roles(Role.SUPER_ADMIN)
+  findCitiesByProvinceFromGoogle(
+    @Query('province')
+    province: string,
+  ) {
+    return this.citiesService.findCitiesByProvinceFromGoogle(province);
+  }
+
+  // @Get('find-all-by-province-from-google')
+  // @Public()
+  // findAllCitiesByProvinceFromGoogle() {
+  //   return this.citiesService.findAllCitiesFromGoogle();
+  // }
+
   @Get(':id')
   @Roles(Role.SUPER_ADMIN)
   findOne(@Param('id', new ObjectIdPipe('id')) id: string) {
@@ -82,14 +98,5 @@ export class CitiesController {
   @Roles(Role.SUPER_ADMIN)
   remove(@Param('id') id: string) {
     return this.citiesService.remove(+id);
-  }
-
-  @Get('find-by-province-from-google')
-  @Roles(Role.SUPER_ADMIN)
-  findCitiesByProvinceFromGoogle(
-    @Query('province')
-    province: string,
-  ) {
-    return this.citiesService.findCitiesByProvinceFromGoogle(province);
   }
 }
