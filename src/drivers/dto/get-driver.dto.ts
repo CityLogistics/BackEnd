@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsEnum,
+  IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -45,4 +46,8 @@ export class GetDriverDto {
   @IsOptional()
   @IsEnum(DriverStatus)
   status?: DriverStatus;
+
+  @IsOptional()
+  @IsMongoId()
+  orderCityId?: string;
 }

@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -22,6 +24,7 @@ import { OrderRejectedDriverEvent } from 'src/orders/events/order-rejected-drive
 import { OrderAcceptedDriverEvent } from 'src/orders/events/order-accepted-driver.event';
 import { OrderDeliveredEvent } from 'src/orders/events/order-delivered';
 import { User } from 'src/users/entities/user.entity';
+import { CitiesService } from 'src/cities/cities.service';
 
 @Injectable()
 export class DriversService {
@@ -30,12 +33,18 @@ export class DriversService {
     @InjectModel(Order.name) private orderModel: Model<Order>,
     @InjectModel(User.name) private userModel: Model<User>,
     private eventEmitter: EventEmitter2,
+    @Inject(forwardRef(() => CitiesService))
+    private citiesService: CitiesService,
   ) {}
 
   async create(createDriverDto: CreateDriverDto): Promise<Driver> {
     // const createdDriver = (
     //   await this.driverModel.create(createDriverDto)
     // ).save();
+
+    await Promise.all(
+      createDriverDto.cities.map((city) => this.citiesService.findOne(city)),
+    );
 
     const driverExists = await this.driverModel.findOne({
       email: createDriverDto.email,
@@ -62,7 +71,8 @@ export class DriversService {
     count: number;
     data: Driver[];
   }> {
-    const { limit, page, days, carTypes, availabiltys, status } = getDriverDto;
+    const { limit, page, days, carTypes, availabiltys, status, orderCityId } =
+      getDriverDto;
 
     let query: any = {};
 
@@ -80,6 +90,10 @@ export class DriversService {
 
     if (availabiltys) {
       query = { ...query, availabiltyTime: { $in: availabiltys } };
+    }
+
+    if (orderCityId) {
+      query = { ...query, cities: { $elemMatch: { $eq: orderCityId } } };
     }
 
     const count = await this.driverModel.countDocuments(query, {

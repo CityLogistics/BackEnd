@@ -39,7 +39,7 @@ export class UsersService {
     //     throw new BadRequestException('Super Admin already exists');
     // }
     try {
-      if (role == Role.ADMIN)
+      if (role != Role.SUPER_ADMIN)
         await Promise.all(
           cities.map((city) => this.citiesService.findOne(city)),
         );
@@ -58,7 +58,7 @@ export class UsersService {
         await createdUser.save()
       ).toObject();
 
-      if (role == Role.ADMIN)
+      if (role != Role.SUPER_ADMIN)
         await Promise.all(
           cities.map((city) =>
             this.citiesService.addAdminToCity(city, createdUser.id),

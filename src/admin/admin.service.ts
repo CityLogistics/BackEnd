@@ -62,7 +62,7 @@ export class AdminService {
     driver.status = status;
 
     if (status == DriverStatus.ACCEPTED) {
-      const { firstName, lastName, email, phoneNumber, image } = driver;
+      const { firstName, lastName, email, phoneNumber, image, cities } = driver;
       const password = randString(8);
 
       const user = await this.userService.create({
@@ -75,7 +75,7 @@ export class AdminService {
         gender: Gender.NOT_SELECTED,
         driverId,
         role: Role.DRIVER,
-        cities: [],
+        cities,
         password,
       });
       driver.userId = user._id;
