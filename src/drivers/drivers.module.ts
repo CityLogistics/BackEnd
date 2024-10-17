@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { DriversService } from './drivers.service';
 import { DriversController } from './drivers.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -7,6 +7,7 @@ import { DriverListener } from './listeners/driver.listener';
 import { EmailModule } from 'src/email/email.module';
 import { Order, OrderSchema } from 'src/orders/entities/order.entity';
 import { User, UserSchema } from 'src/users/entities/user.entity';
+import { CitiesModule } from 'src/cities/cities.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { User, UserSchema } from 'src/users/entities/user.entity';
       { name: User.name, schema: UserSchema },
     ]),
     EmailModule,
+    forwardRef(() => CitiesModule),
   ],
   controllers: [DriversController],
   providers: [DriversService, DriverListener],

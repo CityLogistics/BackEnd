@@ -75,6 +75,9 @@ export class Driver {
 
   @Prop()
   userId: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'City' }] })
+  cities: string[];
 }
 
 export const DriverSchema = SchemaFactory.createForClass(Driver);

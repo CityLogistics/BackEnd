@@ -63,7 +63,7 @@ export class CreateUserDto {
   @IsEnum(Province)
   province?: Province;
 
-  @ValidateIf((o) => o.role == Role.ADMIN)
+  @ValidateIf((o) => o.role != Role.SUPER_ADMIN)
   @IsArray()
   @ArrayNotEmpty() // Ensures the array is not empty
   @IsMongoId({ each: true })

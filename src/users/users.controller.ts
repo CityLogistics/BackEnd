@@ -37,7 +37,7 @@ export class UsersController {
   createuser(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.userService.create({
       ...createUserDto,
-      password: createUserDto.password ?? randString(8),
+      password: randString(8),
     });
   }
 

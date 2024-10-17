@@ -12,6 +12,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { UsersService } from 'src/users/users.service';
 import { GetAllCitiesDto } from './dto/get-all-cities.dto';
 import { GetCitiesByProvinceDto } from './dto/get-cities-by-province.dto';
+import { firstValueFrom } from 'rxjs';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
+import { OrdersService } from 'src/orders/orders.service';
+import { regions } from 'src/common/utils';
 
 @Injectable()
 export class CitiesService {
@@ -19,7 +24,13 @@ export class CitiesService {
     @InjectModel(City.name) private cityModel: Model<City>,
     @Inject(forwardRef(() => UsersService))
     private userService: UsersService,
+    @Inject(forwardRef(() => OrdersService))
+    private orderService: OrdersService,
+    private readonly httpService: HttpService,
+    private config: ConfigService,
   ) {}
+
+  private readonly accessKey = this.config.get('GOOGLE_MAPS_ACCESS_KEY');
 
   async create(createCityDto: CreateCityDto): Promise<City> {
     const createdCity = new this.cityModel({
@@ -29,6 +40,13 @@ export class CitiesService {
     // add city id to orders that don't have it but belong to this city,
     // i.e the order was created with the city before the city was added to the db
     // TODO add city id to orders
+    // createdCity._id
+
+    await this.orderService.addCityIdToUnAssingedOrders(
+      createdCity.name,
+      createdCity._id,
+    );
+
     return await createdCity.save();
   }
 
@@ -162,5 +180,58 @@ export class CitiesService {
 
   remove(id: number) {
     return this.cityModel.findByIdAndDelete(id).exec();
+  }
+
+  async findAllCitiesFromGoogle() {
+    const res = {};
+
+    await Promise.all(
+      regions.map(
+        async (r) =>
+          (res[r.value] = await this.findCitiesByProvinceFromGoogle(r.value)),
+      ),
+    );
+
+    return res;
+  }
+
+  async findCitiesByProvinceFromGoogle(province: string) {
+    const query = `cities in ${province}`;
+    let url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${this.accessKey}`;
+
+    const allCities: any[] = [];
+
+    try {
+      let moreResults = true;
+
+      while (moreResults) {
+        const response = await firstValueFrom<any>(this.httpService.get(url));
+        const data = response.data;
+
+        if (data.status === 'OK') {
+          for (let index = 0; index < data.results.length; index++) {
+            const element = data.results[index];
+            if (element.types?.[0] == 'locality') allCities.push(element.name);
+          }
+
+          // Check for next page token
+          if (data.next_page_token) {
+            // Wait for a short time before requesting the next page
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+            url = `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${data.next_page_token}&key=${this.accessKey}`;
+          } else {
+            moreResults = false; // No more results
+          }
+        } else {
+          console.error('Error fetching data:', data.status);
+          moreResults = false; // Stop on error
+        }
+      }
+
+      return allCities;
+    } catch (error) {
+      console.error('Error:', error);
+      return [];
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { OrdersController } from './orders.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -22,7 +22,7 @@ import { CitiesModule } from 'src/cities/cities.module';
       { name: Transaction.name, schema: TransactionSchema },
     ]),
     EmailModule,
-    CitiesModule,
+    forwardRef(() => CitiesModule),
   ],
   controllers: [OrdersController],
   providers: [OrdersService, OrderListener],

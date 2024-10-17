@@ -1,8 +1,10 @@
 import {
+  ArrayNotEmpty,
   IsArray,
   IsBoolean,
   IsEmail,
   IsEnum,
+  IsMongoId,
   IsNotEmpty,
   IsPhoneNumber,
   IsString,
@@ -62,4 +64,9 @@ export class CreateDriverDto {
   @IsString()
   @IsNotEmpty()
   preferredTimeZone: string;
+
+  @IsArray()
+  @ArrayNotEmpty() // Ensures the array is not empty
+  @IsMongoId({ each: true })
+  cities: string[];
 }
